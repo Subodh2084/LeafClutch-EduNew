@@ -3,6 +3,7 @@
 import { z } from "zod";
 
 import { deleteRow, insertRow, runAdminAction, updateRow } from "@/lib/admin/actions";
+import { uploadFile } from "@/lib/admin/files";
 import {
   aboutItemSchema,
   idSchema,
@@ -14,8 +15,27 @@ import {
 // Admin actions for site settings and the About page cards.
 
 /** Contact details, social links and opening hours (the single site_settings row). */
-export async function updateSiteSettings(values: SiteSettingsInput) {
-  return runAdminAction(siteSettingsSchema, values, (v, db) => updateRow(db, "site_settings", "1", v));
+export async function updateSiteSettings(values: SiteSettingsInput, files?: Record<string, File> | File) {
+  return runAdminAction(siteSettingsSchema, values, async (v, db) => {
+    const fileMap: Record<string, File> = {};
+    if (files instanceof File) {
+      fileMap.logo_url = files;
+    } else if (files && typeof files === "object") {
+      Object.assign(fileMap, files);
+    }
+
+    const updates: Record<string, string | null> = {};
+    for (const [key, file] of Object.entries(fileMap)) {
+      if (file && file instanceof File && file.size > 0) {
+        updates[key] = await uploadFile(db, "courseThumbnails", file);
+      }
+    }
+
+    const payload = { id: 1, ...v, ...updates };
+    const { data, error } = await db.from("site_settings").upsert(payload).select("id").single();
+    if (error) throw error;
+    return data;
+  });
 }
 
 // --- About page cards: values, features, learning steps ----------------------

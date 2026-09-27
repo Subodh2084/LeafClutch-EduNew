@@ -19,20 +19,45 @@ const geistMono = Geist_Mono({
 // Every page reads live data from Supabase on each request.
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: {
-    default: `${siteConfig.name} — Technology Training Institute`,
-    template: `%s | ${siteConfig.name}`,
-  },
-  description: siteConfig.description,
-};
+import { getSiteSettings } from "@/lib/content";
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const name = settings.site_name || siteConfig.name;
+  const description = settings.description || siteConfig.description;
+
+  return {
+    title: {
+      default: `${name} — Technology Training Institute`,
+      template: `%s | ${name}`,
+    },
+    description,
+    ...(settings.favicon_url && {
+      icons: {
+        icon: settings.favicon_url,
+        shortcut: settings.favicon_url,
+        apple: settings.favicon_url,
+      },
+    }),
+  };
+}
+
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const settings = await getSiteSettings();
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        {settings.favicon_url && (
+          <>
+            <link rel="icon" href={settings.favicon_url} />
+            <link rel="apple-touch-icon" href={settings.favicon_url} />
+          </>
+        )}
+      </head>
       <body className="min-h-full flex flex-col">
         <a
           href="#main"

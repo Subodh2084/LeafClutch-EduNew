@@ -15,13 +15,40 @@ const linkClass =
  * `light`: a text wordmark for dark backgrounds — the logo's navy lettering would
  * disappear on the navy footer.
  */
-export function Logo({ tone = "dark", className }: { tone?: "dark" | "light"; className?: string }) {
+interface LogoProps {
+  tone?: "dark" | "light";
+  className?: string;
+  logoUrl?: string | null;
+  siteName?: string | null;
+}
+
+/**
+ * `dark` (default): the company logo image, for light backgrounds such as the navbar.
+ * `light`: a text wordmark for dark backgrounds — the logo's navy lettering would
+ * disappear on the navy footer.
+ */
+export function Logo({ tone = "dark", className, logoUrl, siteName }: LogoProps) {
+  const name = siteName || siteConfig.name;
+
+  if (logoUrl) {
+    return (
+      <Link href="/" aria-label={`${name} home`} className={cn(linkClass, className)}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={logoUrl}
+          alt={`${name} home`}
+          className={cn("h-10 w-auto object-contain sm:h-11", tone === "light" && "brightness-0 invert")}
+        />
+      </Link>
+    );
+  }
+
   if (tone === "dark") {
     return (
       <Link href="/" className={cn(linkClass, className)}>
         <Image
           src={logoImage}
-          alt={`${siteConfig.name} home`}
+          alt={`${name} home`}
           loading="eager"
           sizes="160px"
           className="h-10 w-auto sm:h-11"
@@ -31,7 +58,7 @@ export function Logo({ tone = "dark", className }: { tone?: "dark" | "light"; cl
   }
 
   return (
-    <Link href="/" aria-label={`${siteConfig.name} home`} className={cn(linkClass, className)}>
+    <Link href="/" aria-label={`${name} home`} className={cn(linkClass, className)}>
       <span
         aria-hidden
         className="flex size-8 items-center justify-center rounded-lg bg-white/10 ring-1 ring-white/15"
@@ -39,7 +66,7 @@ export function Logo({ tone = "dark", className }: { tone?: "dark" | "light"; cl
         <Leaf className="size-4 text-green" strokeWidth={2.25} />
       </span>
       <span aria-hidden className="text-lg font-semibold tracking-tight text-white">
-        LeafClutch
+        {siteName || siteConfig.shortName}
       </span>
     </Link>
   );

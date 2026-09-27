@@ -52,6 +52,11 @@ export async function getFeaturedTestimonials(
 }
 
 const emptySettings: SiteSettings = {
+  site_name: null,
+  logo_url: null,
+  footer_logo_url: null,
+  favicon_url: null,
+  description: null,
   email: null,
   phone: null,
   whatsapp: null,
@@ -64,10 +69,13 @@ const emptySettings: SiteSettings = {
 export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
   const { data, error } = await getPublicClient()
     .from("site_settings")
-    .select("email, phone, whatsapp, address, social_links, opening_hours")
+    .select("*")
     .maybeSingle();
   throwIfError(error, "load site settings");
-  return (data as SiteSettings | null) ?? emptySettings;
+  return {
+    ...emptySettings,
+    ...((data as Partial<SiteSettings> | null) ?? {}),
+  };
 });
 
 export async function getActiveOffers(): Promise<Offer[]> {

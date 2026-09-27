@@ -53,8 +53,8 @@ export async function Footer() {
     <footer className="bg-navy-deep text-white/70">
       <Container className="grid gap-12 py-14 sm:py-16 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,3fr)]">
         <div className="max-w-sm">
-          <Logo tone="light" />
-          <p className="mt-5 text-sm leading-relaxed">{siteConfig.description}</p>
+          <Logo tone="light" logoUrl={contact.footer_logo_url || contact.logo_url} siteName={contact.site_name} />
+          <p className="mt-5 text-sm leading-relaxed">{contact.description || siteConfig.description}</p>
 
           {contactItems.length > 0 && (
             <ul className="mt-6 space-y-2.5 text-sm">
@@ -106,7 +106,7 @@ export async function Footer() {
 
       <div className="border-t border-white/10">
         <Container className="py-6 text-sm text-white/50">
-          © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
+          © {new Date().getFullYear()} {contact.site_name || siteConfig.name}. All rights reserved.
         </Container>
       </div>
     </footer>

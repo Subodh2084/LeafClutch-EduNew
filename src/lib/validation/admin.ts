@@ -161,7 +161,23 @@ export const homeStatSchema = z.object({
 // Site settings (contact details shown in the footer, Contact page and forms)
 // ---------------------------------------------------------------------------
 
+const hrefLink = z
+  .string()
+  .trim()
+  .transform((val) => {
+    let v = val.trim();
+    if (!v) return "";
+    if (!/^https?:\/\//i.test(v)) v = `https://${v}`;
+    return v;
+  })
+  .pipe(z.string().url("Enter a valid link (e.g. https://facebook.com)"));
+
 export const siteSettingsSchema = z.object({
+  site_name: optionalText(100),
+  logo_url: optionalHttpsUrl.optional(),
+  footer_logo_url: optionalHttpsUrl.optional(),
+  favicon_url: optionalHttpsUrl.optional(),
+  description: optionalText(1000),
   email: z.union([z.literal(""), z.email("Enter a valid email")]).nullable().transform((v) => v || null),
   phone: optionalText(40),
   whatsapp: z
@@ -172,7 +188,7 @@ export const siteSettingsSchema = z.object({
     .nullable()
     .transform((v) => v || null),
   address: optionalText(200),
-  social_links: z.array(z.object({ label: requiredText("Label", 40), href: z.url({ protocol: /^https$/ }) })).max(10),
+  social_links: z.array(z.object({ label: requiredText("Label", 40), href: hrefLink })).max(10),
   opening_hours: z.array(z.object({ days: requiredText("Days", 60), hours: requiredText("Hours", 60) })).max(10),
 });
 
@@ -258,7 +274,7 @@ export const categorySchema = z.object({
   short_name: requiredText("Short name", 40),
   slug,
   description: optionalText(300),
-  image_url: optionalHttpsUrl,
+  image_url: optionalHttpsUrl.optional(),
   display_order: displayOrder,
   is_active: z.boolean(),
 });

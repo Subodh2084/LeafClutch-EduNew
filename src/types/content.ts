@@ -58,6 +58,11 @@ export interface SocialLink {
 
 /** The single row of global settings. */
 export interface SiteSettings {
+  site_name?: string | null;
+  logo_url?: string | null;
+  footer_logo_url?: string | null;
+  favicon_url?: string | null;
+  description?: string | null;
   email: string | null;
   phone: string | null;
   /** International format, digits only, no "+". */

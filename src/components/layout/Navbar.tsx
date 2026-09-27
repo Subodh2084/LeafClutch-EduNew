@@ -6,16 +6,17 @@ import { Logo } from "@/components/layout/Logo";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { buttonVariants } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
+import { getSiteSettings } from "@/lib/content";
 import { getCourseNavigation } from "@/lib/courses";
 import { cn } from "@/lib/utils";
 
 export async function Navbar() {
-  const groups = await getCourseNavigation();
+  const [groups, settings] = await Promise.all([getCourseNavigation(), getSiteSettings()]);
 
   return (
     <header className="sticky top-0 z-40 border-b bg-white/90 backdrop-blur-md">
       <Container className="flex h-16 items-center gap-6 lg:gap-10">
-        <Logo />
+        <Logo logoUrl={settings.logo_url} siteName={settings.site_name} />
         <DesktopNav groups={groups} />
         <div className="ml-auto flex items-center gap-2">
           <Link

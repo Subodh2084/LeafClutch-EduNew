@@ -15,7 +15,11 @@ export default async function SettingsPage() {
         description="Contact details used in the footer, the Contact page, the enrollment form and the WhatsApp buttons."
       />
       <div className="rounded-xl border bg-white p-5">
-        <EntityForm fields={siteSettingsFields} initial={settings ?? undefined} submit={updateSiteSettings} />
+        <EntityForm
+          fields={siteSettingsFields}
+          initial={settings ?? undefined}
+          submit={updateSiteSettings}
+        />
       </div>
     </>
   );

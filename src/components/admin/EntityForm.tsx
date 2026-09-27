@@ -58,6 +58,8 @@ export function EntityForm({
   const [formError, setFormError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const fieldFilesRef = useRef<Record<string, File>>({});
+  const [fieldPreviews, setFieldPreviews] = useState<Record<string, string>>({});
   const defaults = toFormValues(fields, initial);
   const {
     register,
@@ -65,14 +67,17 @@ export function EntityForm({
     handleSubmit,
     setError,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ defaultValues: defaults });
 
   const onSubmit = handleSubmit(async (raw) => {
     setFormError(null);
     setSaved(false);
-    const file = fileInputRef.current?.files?.[0];
-    const result = await submit({ ...toSubmitValues(fields, raw), ...fixed } as never, file);
+    const singleFile = fileInputRef.current?.files?.[0];
+    const filesMap = { ...fieldFilesRef.current, ...(singleFile ? { file: singleFile } : {}) };
+    const filesPayload = singleFile && Object.keys(fieldFilesRef.current).length === 0 ? singleFile : filesMap;
+    const result = await submit({ ...toSubmitValues(fields, raw), ...fixed } as never, filesPayload as never);
     if (!result.ok) {
       setFormError(result.error);
       for (const [name, messages] of Object.entries(result.fieldErrors ?? {})) {
@@ -84,6 +89,8 @@ export function EntityForm({
       reset(toFormValues(fields, undefined));
       if (fileInputRef.current) fileInputRef.current.value = "";
       setPreview(null);
+      fieldFilesRef.current = {};
+      setFieldPreviews({});
     }
     setSaved(true);
     router.refresh();
@@ -98,7 +105,7 @@ export function EntityForm({
           {preview && fileUpload.kind === "image" && (
             <div className="mb-3 h-32 w-32  overflow-hidden rounded-lg border bg-surface-gray">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={preview} alt="Preview" className="h-32 w-32" />
+              <img src={preview} alt="Preview" className="h-32 w-32 object-contain" />
             </div>
           )}
           <input
@@ -124,8 +131,11 @@ export function EntityForm({
         {fields.map((field) => {
           const error = errors[field.name]?.message as string | undefined;
           const id = `field-${field.name}`;
+          const currentUrlVal = watch(field.name);
+          const activePreview = fieldPreviews[field.name] || (typeof currentUrlVal === "string" ? currentUrlVal : "");
+
           return (
-            <div key={field.name} className={cn(field.wide || field.type === "textarea" || field.type === "pairs" ? "sm:col-span-2" : "")}>
+            <div key={field.name} className={cn(field.wide || field.type === "textarea" || field.type === "pairs" || field.type === "file" ? "sm:col-span-2" : "")}>
               {field.type === "checkbox" ? (
                 <label className="flex items-center gap-2 pt-6 text-sm font-medium text-foreground">
                   <input type="checkbox" {...register(field.name)} className="size-4 accent-navy" />
@@ -151,6 +161,37 @@ export function EntityForm({
                     <MultiSelect name={field.name} options={field.options ?? []} control={control} />
                   ) : field.type === "pairs" ? (
                     <PairsInput name={field.name} keys={field.pairKeys!} control={control} />
+                  ) : field.type === "file" ? (
+                    <div className="space-y-2 rounded-lg border bg-surface-gray/30 p-3">
+                      {activePreview && (
+                        <div className="h-20 w-20 overflow-hidden rounded-lg border bg-white">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={activePreview} alt="Preview" className="h-20 w-20 object-contain p-1" />
+                        </div>
+                      )}
+                      <div className="flex gap-2">
+                        <Input
+                          id={id}
+                          type="text"
+                          placeholder={field.placeholder || "https://… or choose a file"}
+                          {...register(field.name)}
+                          aria-invalid={!!error}
+                          className="h-9 bg-white flex-1"
+                        />
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*,.ico"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            fieldFilesRef.current[field.name] = file;
+                            setFieldPreviews((prev) => ({ ...prev, [field.name]: URL.createObjectURL(file) }));
+                          }
+                        }}
+                        className="block w-full text-xs text-muted-foreground file:mr-3 file:rounded-md file:border-0 file:bg-white file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-foreground hover:file:bg-surface-gray focus:outline-none"
+                      />
+                    </div>
                   ) : (
                     <Input
                       id={id}

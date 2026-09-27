@@ -14,7 +14,9 @@ export type FieldType =
   | "select"
   | "multiselect"
   /** A list of { [key]: string } rows, e.g. opening hours or social links. */
-  | "pairs";
+  | "pairs"
+  /** A text input for URL combined with an inline file upload input. */
+  | "file";
 
 export interface FieldDef {
   name: string;
