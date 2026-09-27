@@ -87,9 +87,21 @@ export function ResourceManager({
           <EntityForm
             fields={fields}
             fixed={fixed}
-            submit={(values) => create(values as never)}
+            fileUpload={image ? { label: image.label, kind: "image" } : undefined}
+            submit={async (values, file) => {
+              const result = await create(values as never);
+              if (result.ok && result.data && typeof result.data === "object" && "id" in result.data && file && image) {
+                const formData = new FormData();
+                formData.append("file", file);
+                const uploadResult = await image.upload(result.data.id as string, formData);
+                if (!uploadResult.ok) return uploadResult;
+              }
+              return result;
+            }}
             submitLabel={addLabel}
-            onDone={() => setAdding(false)}
+            onDone={() => {
+              setAdding(false);
+            }}
             onCancel={() => setAdding(false)}
           />
         </div>

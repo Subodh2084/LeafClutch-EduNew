@@ -21,15 +21,15 @@ function PartnerMark({ partner, hidden = false }: { partner: Partnership; hidden
       src={partner.logo}
       alt={partner.name}
       width={140}
-      height={40}
-      className="h-9 w-auto object-contain opacity-80 grayscale transition hover:opacity-100 hover:grayscale-0"
+      height={140}
+      className="h-20 w-auto object-contain opacity-80 grayscale transition hover:opacity-100 hover:grayscale-0"
     />
   ) : (
     // Wordmark fallback until real partner logos are supplied.
     <span className="flex items-center gap-3">
       <span
         aria-hidden
-        className="flex size-9 shrink-0 items-center justify-center rounded-md border border-surface-blue-strong bg-surface-blue text-xs font-bold tracking-wide text-navy"
+        className="flex size-12 shrink-0 items-center justify-center rounded-md border border-surface-blue-strong bg-surface-blue text-sm font-bold tracking-wide text-navy"
       >
         {monogram(partner.name)}
       </span>

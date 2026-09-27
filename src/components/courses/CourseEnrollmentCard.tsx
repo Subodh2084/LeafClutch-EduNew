@@ -61,10 +61,6 @@ export function CourseEnrollmentCard({
           Enroll Now
           <ArrowRight data-icon="inline-end" aria-hidden />
         </Link>
-        <p className="mt-3 text-center text-xs text-muted-foreground">
-          No online payment — our team confirms your seat and payment details.
-        </p>
-
         <div className="mt-6 border-t pt-5">
           <h2 className="text-sm font-semibold text-foreground">This course includes</h2>
           <ul className="mt-3 space-y-2.5">

@@ -180,3 +180,15 @@ export const siteSettingsFields: FieldDef[] = [
     pairKeys: [{ value: "label", label: "Name, e.g. Facebook" }, { value: "href", label: "https://…" }],
   },
 ];
+
+export function offerFields(courses: FieldOption[]): FieldDef[] {
+  return [
+    { name: "title", label: "Offer title", type: "text", wide: true },
+    { name: "description", label: "Description", type: "textarea" },
+    { name: "course_id", label: "Course", type: "select", nullable: true, options: courses, hint: "Link to an existing course (optional)" },
+    { name: "price", label: "Price (Rs.)", type: "number", nullable: true },
+    { name: "discount_price", label: "Discount price (Rs.)", type: "number", nullable: true, hint: "Leave empty for no discount" },
+    order,
+    { name: "is_active", label: "Show on website", type: "checkbox" },
+  ];
+}

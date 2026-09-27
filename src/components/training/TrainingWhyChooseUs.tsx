@@ -1,5 +1,4 @@
 import Image from "next/image";
-
 import { Container } from "@/components/layout/Container";
 import { SectionHeading } from "@/components/layout/SectionHeading";
 import { TrainingFeatureCard } from "@/components/training/TrainingFeatureCard";

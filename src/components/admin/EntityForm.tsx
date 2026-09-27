@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Controller, useForm, type Control } from "react-hook-form";
 import { Plus, X } from "lucide-react";
 
@@ -24,10 +24,12 @@ interface EntityFormProps {
   initial?: FormValues;
   /** Values the admin doesn't edit here, e.g. { section: "feature", type: "corporate" }. */
   fixed?: FormValues;
+  /** A file upload field to show alongside the form (e.g. for creating a row and uploading its image together). */
+  fileUpload?: { label: string; kind: "image" | "pdf" };
   /** A server action (or wrapper); it validates the values with Zod. */
-  submit: (values: never) => Promise<ActionResult>;
+  submit: (values: never, file?: File) => Promise<ActionResult>;
   submitLabel?: string;
-  onDone?: () => void;
+  onDone?: (data?: any) => void;
   onCancel?: () => void;
   /** Clear the form after a successful save (for "add" forms). */
   resetOnSuccess?: boolean;
@@ -49,10 +51,13 @@ export function EntityForm({
   onDone,
   onCancel,
   resetOnSuccess,
+  fileUpload,
 }: EntityFormProps) {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
   const defaults = toFormValues(fields, initial);
   const {
     register,
@@ -66,7 +71,8 @@ export function EntityForm({
   const onSubmit = handleSubmit(async (raw) => {
     setFormError(null);
     setSaved(false);
-    const result = await submit({ ...toSubmitValues(fields, raw), ...fixed } as never);
+    const file = fileInputRef.current?.files?.[0];
+    const result = await submit({ ...toSubmitValues(fields, raw), ...fixed } as never, file);
     if (!result.ok) {
       setFormError(result.error);
       for (const [name, messages] of Object.entries(result.fieldErrors ?? {})) {
@@ -74,14 +80,46 @@ export function EntityForm({
       }
       return;
     }
-    if (resetOnSuccess) reset(toFormValues(fields, undefined));
+    if (resetOnSuccess) {
+      reset(toFormValues(fields, undefined));
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      setPreview(null);
+    }
     setSaved(true);
     router.refresh();
-    onDone?.();
+    onDone?.(result.data);
   });
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-4">
+      {fileUpload && (
+        <div className="mb-4">
+          <label className="mb-1.5 block text-sm font-medium text-foreground">{fileUpload.label}</label>
+          {preview && fileUpload.kind === "image" && (
+            <div className="mb-3 h-32 w-32  overflow-hidden rounded-lg border bg-surface-gray">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={preview} alt="Preview" className="h-32 w-32" />
+            </div>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={fileUpload.kind === "image" ? "image/jpeg,image/png,image/webp" : "application/pdf"}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file && fileUpload.kind === "image") {
+                setPreview(URL.createObjectURL(file));
+              } else {
+                setPreview(null);
+              }
+            }}
+            className="block w-full text-sm text-muted-foreground file:mr-4 file:rounded-md file:border-0 file:bg-white file:px-4 file:py-2.5 file:text-sm file:font-medium file:text-foreground hover:file:bg-surface-gray focus:outline-none"
+          />
+          <p className="mt-1.5 text-xs text-muted-foreground">
+            {fileUpload.kind === "image" ? "JPG, PNG or WebP" : "PDF"}
+          </p>
+        </div>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
         {fields.map((field) => {
           const error = errors[field.name]?.message as string | undefined;

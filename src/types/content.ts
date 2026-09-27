@@ -71,6 +71,7 @@ export interface SiteSettings {
 export interface Offer {
   id: string;
   course_id: string | null;
+  course_name: string | null;
   title: string;
   description: string;
   thumbnail: string | null;

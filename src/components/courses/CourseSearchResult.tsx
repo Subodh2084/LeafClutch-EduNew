@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { CategoryIcon } from "@/components/courses/CategoryIcon";
@@ -12,9 +13,21 @@ export function CourseSearchResult({ course }: { course: Course }) {
       data-search-result
       className="flex items-center gap-3 rounded-lg px-3 py-2.5 outline-none hover:bg-surface-blue focus-visible:bg-surface-blue focus-visible:ring-2 focus-visible:ring-ring/50"
     >
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-md border bg-white">
-        <CategoryIcon slug={course.category.slug} className="size-4 text-navy" />
-      </span>
+      {course.thumbnail ? (
+        <div className="relative size-9 shrink-0 overflow-hidden rounded-md border bg-surface-gray">
+          <Image
+            src={course.thumbnail}
+            alt=""
+            fill
+            sizes="36px"
+            className="object-cover"
+          />
+        </div>
+      ) : (
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-md border bg-white">
+          <CategoryIcon slug={course.category.slug} className="size-4 text-navy" />
+        </span>
+      )}
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-medium text-foreground">{course.name}</span>
         <span className="block truncate text-xs text-muted-foreground">

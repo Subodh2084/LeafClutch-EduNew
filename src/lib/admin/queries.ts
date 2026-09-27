@@ -4,6 +4,7 @@ import { cache } from "react";
 
 import { requireAdmin } from "@/lib/admin/auth";
 import { byDisplayOrder, throwIfError } from "@/lib/data";
+import type { Offer } from "@/types/content";
 import type { TrainingType } from "@/types/training";
 
 // Reads for the admin panel. They run as the signed-in admin, so unlike the
@@ -115,6 +116,20 @@ export async function getAdminSiteSettings() {
 export async function getAdminCourseOptions() {
   const courses = await getAdminCourses();
   return courses.map((course) => ({ value: course.id, label: course.name }));
+}
+
+export async function getAdminOffers() {
+  const db = await adminClient();
+  const { data, error } = await db
+    .from("offers")
+    .select("*, course:courses(name)")
+    .order("display_order");
+  throwIfError(error, "load offers");
+  type Row = Omit<Offer, "course_name"> & { course: { name: string } | null };
+  return (data as Row[]).map(({ course, ...rest }) => ({
+    ...rest,
+    course_name: course?.name ?? null,
+  }));
 }
 
 export async function getAdminCounts() {

@@ -71,9 +71,15 @@ export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
 });
 
 export async function getActiveOffers(): Promise<Offer[]> {
-  const { data, error } = await getPublicClient().from("offers").select("*");
+  const { data, error } = await getPublicClient()
+    .from("offers")
+    .select("*, course:courses(name)")
+    .eq("is_active", true)
+    .order("display_order");
   throwIfError(error, "load offers");
-  return (data as Offer[]).sort(byDisplayOrder);
+  return (data as (Omit<Offer, "course_name"> & { course: { name: string } | null })[]).map(
+    ({ course, ...rest }) => ({ ...rest, course_name: course?.name ?? null }),
+  );
 }
 
 /** Active home page stats ("1,000+ Students trained"), in display order. */

@@ -11,6 +11,7 @@ const sections = [
   { href: "/admin/faqs", label: "FAQs" },
   { href: "/admin/testimonials", label: "Testimonials" },
   { href: "/admin/home-stats", label: "Home stats" },
+  { href: "/admin/offers", label: "Offers" },
   { href: "/admin/about", label: "About page" },
   { href: "/admin/training", label: "Training pages" },
   { href: "/admin/settings", label: "Site settings" },
