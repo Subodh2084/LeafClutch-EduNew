@@ -20,7 +20,7 @@ export async function Navbar() {
         <DesktopNav groups={groups} />
         <div className="ml-auto flex items-center gap-2">
           <Link
-            href={siteConfig.nav.login}
+            href={'https://lcon.leafclutch.com.np/login'}
             className={cn(
               buttonVariants({ variant: "outline", size: "lg" }),
               "hidden px-4 lg:inline-flex bg-navy text-white",
