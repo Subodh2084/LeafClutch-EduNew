@@ -104,7 +104,7 @@ export function MobileNav({ groups }: { groups: CourseNavGroup[] }) {
 
         <div className="border-t p-5">
           <Link
-            href={siteConfig.nav.login}
+            href={'https://lcon.leafclutch.com.np/login'}
             onClick={close}
             className={cn(buttonVariants({ size: "xl" }), "w-full")}
           >

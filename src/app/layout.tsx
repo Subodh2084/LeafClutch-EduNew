@@ -32,13 +32,11 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${name}`,
     },
     description,
-    ...(settings.favicon_url && {
-      icons: {
-        icon: settings.favicon_url,
-        shortcut: settings.favicon_url,
-        apple: settings.favicon_url,
-      },
-    }),
+    icons: {
+      icon: settings.favicon_url || "/favicon.ico",
+      shortcut: settings.favicon_url || "/favicon.ico",
+      apple: settings.favicon_url || "/favicon.ico",
+    },
   };
 }
 
@@ -51,12 +49,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        {settings.favicon_url && (
-          <>
-            <link rel="icon" href={settings.favicon_url} />
-            <link rel="apple-touch-icon" href={settings.favicon_url} />
-          </>
-        )}
+        <link rel="icon" href={settings.favicon_url || "/favicon.ico"} />
+        <link rel="apple-touch-icon" href={settings.favicon_url || "/favicon.ico"} />
       </head>
       <body className="min-h-full flex flex-col">
         <a

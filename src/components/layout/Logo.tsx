@@ -37,7 +37,9 @@ export function Logo({ tone = "dark", className, logoUrl, siteName }: LogoProps)
         <img
           src={logoUrl}
           alt={`${name} home`}
-          className={cn("h-10 w-auto object-contain sm:h-11", tone === "light" && "brightness-0 invert")}
+          width={140}
+          height={44}
+          className={cn("object-contain", className)}
         />
       </Link>
     );
