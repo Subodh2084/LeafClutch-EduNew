@@ -3,7 +3,7 @@
 ## Setup
 
 1. Create a new Supabase project.
-2. Run the 17 migrations in order, either with `npx supabase db push` or by pasting each file from `migrations/` into the SQL editor:
+2. Run the 16 migrations in order, either with `npx supabase db push` or by pasting each file from `migrations/` into the SQL editor:
 
    | File | Contents |
    | --- | --- |
@@ -23,7 +23,6 @@
    | `20260928…_course_tools_udemy.sql` | course tools, free Udemy courses; no courses on the training pages |
    | `20260929…_site_settings_map.sql` | Google Maps link for the Contact page |
    | `20260930…_announcement_tools_cleanup.sql` | site-wide announcement bar; drops course tool logos and the single course Udemy link |
-   | `20260930000001…_rename_leafclutch.sql` | brand spelling "Leafclutch" in all stored text |
 
 3. Run `seed.sql`. It loads the content that used to live in `src/data`. Most of it is placeholder copy.
 
