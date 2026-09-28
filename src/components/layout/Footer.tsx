@@ -107,9 +107,17 @@ export async function Footer() {
 
       <div className="border-t border-white/10">
         {/* Bottom/right padding keeps these links clear of the floating WhatsApp button. */}
-        <Container className="flex flex-col gap-3 pt-6 pb-24 text-sm text-white/50 sm:flex-row sm:items-center sm:justify-between sm:pb-6 sm:pr-24 2xl:pr-8">
+        <Container className="flex flex-col gap-3 pt-6 pb-24 text-sm text-white/50 sm:flex-row sm:items-center sm:justify-between sm:pb-6 sm:pr-24 lg:pr-24 2xl:pr-8">
           <p>
-            © {new Date().getFullYear()} {contact.site_name || siteConfig.name}. All rights reserved.
+            © {new Date().getFullYear()} {contact.site_name || siteConfig.name}. All rights reserved.{" "}
+            <a
+              href={siteConfig.companyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="whitespace-nowrap text-white/80 underline underline-offset-4 transition-colors hover:text-white"
+            >
+              leafclutch.com.np<span className="sr-only"> (company website, opens in a new tab)</span>
+            </a>
           </p>
           <ul aria-label="Legal" className="flex flex-wrap gap-x-6 gap-y-2">
             <li>

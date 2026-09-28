@@ -6,9 +6,9 @@ export const learningModeLabels: Record<LearningMode, string> = {
   hybrid: "Hybrid",
 };
 
-/** True when the course comes with a free Udemy course (a link, or bonus courses to choose from). */
-export function hasUdemyBonus(course: Pick<Course, "udemy_url" | "udemy_bonus_courses">): boolean {
-  return Boolean(course.udemy_url) || Boolean(course.udemy_bonus_courses?.length);
+/** True when the course comes with free Udemy courses to choose from. */
+export function hasUdemyBonus(course: Pick<Course, "udemy_bonus_courses">): boolean {
+  return Boolean(course.udemy_bonus_courses?.length);
 }
 
 export function courseHref(slug: string) {

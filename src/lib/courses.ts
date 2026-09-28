@@ -91,7 +91,7 @@ const COURSE_DETAIL = `
   installments:course_installments(*),
   course_instructors(display_order, instructor:instructors(*)),
   faqs(*),
-  tools:course_tools(id, name, icon, description, display_order),
+  tools:course_tools(id, name, description, display_order),
   udemy_bonus_courses:course_udemy_bonus(*)
 `;
 
@@ -122,7 +122,7 @@ export const getCourseBySlug = cache(async (slug: string): Promise<CourseDetail 
   return {
     ...row,
     // Hidden tools / bonus courses are filtered out by RLS.
-    tools: row.tools.sort(byDisplayOrder).map(({ id, name, icon, description }) => ({ id, name, icon, description })),
+    tools: row.tools.sort(byDisplayOrder).map(({ id, name, description }) => ({ id, name, description })),
     // A bonus course without a cover image isn't shown (the card needs one).
     udemy_bonus_courses: row.udemy_bonus_courses
       .filter((bonus) => bonus.image_url)

@@ -1,5 +1,4 @@
 import { CourseDetailSection } from "@/components/courses/CourseDetailSection";
-import { toolIcons } from "@/components/courses/tool-icons";
 import type { CourseTool } from "@/types/course";
 
 export function CourseTools({ tools }: { tools: CourseTool[] }) {
@@ -8,32 +7,17 @@ export function CourseTools({ tools }: { tools: CourseTool[] }) {
 
   return (
     <CourseDetailSection id="tools" title="Tools Covered">
-      <ul className="grid grid-cols-1 gap-x-6 gap-y-5 min-[420px]:grid-cols-2 xl:grid-cols-3">
-        {tools.map((tool) => {
-          const Icon = tool.icon ? toolIcons[tool.icon] : undefined;
-          return (
-            <li key={tool.id} className="flex min-w-0 items-center gap-3.5">
-              <span
-                aria-hidden
-                className="flex size-11 shrink-0 items-center justify-center rounded-xl border bg-white text-navy shadow-card"
-              >
-                {Icon ? (
-                  <Icon className="size-5.5" />
-                ) : (
-                  <span className="text-base font-semibold">{tool.name.charAt(0).toUpperCase()}</span>
-                )}
+      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {tools.map((tool) => (
+          <li key={tool.id} className="min-w-0 rounded-lg border bg-surface-blue/60 px-4 py-3">
+            <span className="block font-semibold wrap-break-word text-navy">{tool.name}</span>
+            {tool.description && (
+              <span className="mt-0.5 block text-sm leading-snug wrap-break-word text-muted-foreground">
+                {tool.description}
               </span>
-              <span className="min-w-0">
-                <span className="block font-medium wrap-break-word text-foreground">{tool.name}</span>
-                {tool.description && (
-                  <span className="block text-sm wrap-break-word text-muted-foreground">
-                    {tool.description}
-                  </span>
-                )}
-              </span>
-            </li>
-          );
-        })}
+            )}
+          </li>
+        ))}
       </ul>
     </CourseDetailSection>
   );

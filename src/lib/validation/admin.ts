@@ -77,7 +77,6 @@ export const courseSchema = z
     discount_price: price.nullable(),
     duration: requiredText("Duration", 50),
     learning_mode: z.enum(["online", "physical", "hybrid"]),
-    udemy_url: optionalHttpsUrl,
     certificate_available: z.boolean(),
     is_featured: z.boolean(),
     status: z.enum(["draft", "published", "archived"]),
@@ -91,12 +90,6 @@ export const courseSchema = z
 /** A tool on the course page's "Tools covered" list. */
 export const courseToolSchema = z.object({
   name: requiredText("Name", 60),
-  icon: z
-    .string()
-    .trim()
-    .max(40)
-    .nullable()
-    .transform((value) => value || null),
   description: optionalText(200),
   display_order: displayOrder,
   is_active: z.boolean(),
@@ -207,6 +200,13 @@ const hrefLink = z
   .pipe(z.string().url("Enter a valid link (e.g. https://facebook.com)"));
 
 export const siteSettingsSchema = z.object({
+  /** Short notice above the navbar on every public page; empty hides it. */
+  announcement: z
+    .string()
+    .trim()
+    .max(200, "Keep it under 200 characters so it fits in the bar")
+    .nullish()
+    .transform((value) => value || null),
   site_name: optionalText(100),
   logo_url: optionalHttpsUrl.optional(),
   footer_logo_url: optionalHttpsUrl.optional(),

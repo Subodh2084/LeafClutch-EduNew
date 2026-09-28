@@ -12,7 +12,7 @@ export default async function SettingsPage() {
     <>
       <PageHeader
         title="Site settings"
-        description="Contact details used in the footer, the Contact page, the enrollment form and the WhatsApp buttons."
+        description="The announcement bar, plus contact details used in the footer, the Contact page, the enrollment form and the WhatsApp buttons."
       />
       <div className="rounded-xl border bg-white p-5">
         <EntityForm

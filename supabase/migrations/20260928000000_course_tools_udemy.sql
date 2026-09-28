@@ -2,9 +2,7 @@
 -- longer linked to the training pages.
 
 -- ---------------------------------------------------------------------------
--- Tools covered by a course. `icon` is a key into the icon registry
--- (src/components/courses/tool-icons.ts); unknown or empty keys show the
--- tool's initial instead.
+-- Tools covered by a course. (Migration 16 drops the `icon` column again.)
 -- ---------------------------------------------------------------------------
 
 create table if not exists public.course_tools (

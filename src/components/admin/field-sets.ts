@@ -21,7 +21,6 @@ export function courseFields(categories: FieldOption[]): FieldDef[] {
     { name: "discount_price", label: "Discount price (Rs.)", type: "number", nullable: true, hint: "Leave empty for no discount" },
     { name: "duration", label: "Duration", type: "text", placeholder: "3 months" },
     { name: "learning_mode", label: "Learning mode", type: "select", options: opts(["online", "Online"], ["physical", "In-person"], ["hybrid", "Hybrid"]) },
-    { name: "udemy_url", label: "Udemy link", type: "text", nullable: true, placeholder: "https://www.udemy.com/…", hint: "Shows “Includes a free Udemy course” on the course page" },
     { name: "certificate_available", label: "Certificate included", type: "checkbox" },
     { name: "is_featured", label: "Featured on the home page", type: "checkbox" },
   ];
@@ -29,17 +28,6 @@ export function courseFields(categories: FieldOption[]): FieldDef[] {
 
 export const courseToolFields: FieldDef[] = [
   { name: "name", label: "Tool", type: "text", placeholder: "React" },
-  {
-    name: "icon",
-    label: "Logo",
-    type: "select",
-    nullable: true,
-    hint: "Empty = the tool's first letter",
-    options: [
-      "express", "figma", "javascript", "jupyter", "mongodb", "mongoose", "nodejs",
-      "numpy", "pandas", "postgresql", "python", "react", "scikit-learn",
-    ].map((key) => ({ value: key, label: key })),
-  },
   { name: "description", label: "Short description", type: "text", nullable: true, wide: true },
   order,
   active,
@@ -188,6 +176,15 @@ export const trainingImageFields: FieldDef[] = [
 ];
 
 export const siteSettingsFields: FieldDef[] = [
+  {
+    name: "announcement",
+    label: "Announcement",
+    type: "textarea",
+    nullable: true,
+    wide: true,
+    placeholder: "Due to Dashain, all physical classes are cancelled until further notice.",
+    hint: "Shown in a bar at the top of every page. Up to 200 characters. Leave empty to hide the bar.",
+  },
   { name: "site_name", label: "Site Name", type: "text", nullable: true, placeholder: "LeafClutch Technologies" },
   { name: "logo_url", label: "Header Logo Image", type: "file", nullable: true, hint: "Upload image file or paste URL" },
   { name: "footer_logo_url", label: "Footer Logo Image (Optional)", type: "file", nullable: true, hint: "Upload image file or paste URL. Defaults to Header Logo if empty" },
