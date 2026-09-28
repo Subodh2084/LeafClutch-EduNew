@@ -13,9 +13,11 @@ export const siteConfig = {
   // and are read with getSiteSettings() from lib/content.
 
   nav: {
-    login: "/login",
+    login: "https://lcon.leafclutch.com.np/login",
+    enroll: "/enroll",
     contact: "/contact",
     about: "/about",
+    verifyCertificate: "https://verify.leafclutch.com.np/",
     solutions: [
       {
         title: "For Corporate",
@@ -33,5 +35,11 @@ export const siteConfig = {
         description: "Digital capability building for public institutions.",
       },
     ],
+  },
+
+  // Legal pages live on the company site (copies: privacy.md, "terms of service.md").
+  legal: {
+    privacy: "https://leafclutch.com.np/privacy",
+    terms: "https://leafclutch.com.np/terms",
   },
 } as const;

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowRight, Menu } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Menu, Phone } from "lucide-react";
 
 import { CategoryIcon } from "@/components/courses/CategoryIcon";
 import {
@@ -15,15 +15,23 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { siteConfig } from "@/config/site";
 import { courseHref, coursesHref } from "@/lib/course-display";
-import { cn } from "@/lib/utils";
+import { buildTelUrl, cn } from "@/lib/utils";
 import type { CourseNavGroup } from "@/types/course";
 
 const sectionTrigger = "py-4 text-base hover:no-underline";
+// Plain links sit in the same rows as the accordion sections above them.
+const rowLink =
+  "flex items-center gap-2 border-t py-4 text-base font-medium text-foreground outline-none hover:text-navy focus-visible:ring-3 focus-visible:ring-ring/50";
 const groupTrigger = "py-2.5 text-sm font-medium text-foreground hover:no-underline";
 const linkClass =
   "block rounded-md px-3 py-2.5 text-sm text-muted-foreground no-underline outline-none hover:bg-surface-blue hover:text-navy focus-visible:ring-3 focus-visible:ring-ring/50";
 
-export function MobileNav({ groups }: { groups: CourseNavGroup[] }) {
+interface MobileNavProps {
+  groups: CourseNavGroup[];
+  phone: string | null;
+}
+
+export function MobileNav({ groups, phone }: MobileNavProps) {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
 
@@ -100,13 +108,42 @@ export function MobileNav({ groups }: { groups: CourseNavGroup[] }) {
               </AccordionContent>
             </AccordionItem>
           </Accordion>
+
+          <Link href={siteConfig.nav.contact} onClick={close} className={rowLink}>
+            Contact Us
+          </Link>
+          <a
+            href={siteConfig.nav.verifyCertificate}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={close}
+            className={rowLink}
+          >
+            Verify Certificate
+            <ArrowUpRight aria-hidden className="size-4 text-muted-foreground" />
+            <span className="sr-only">(opens in a new tab)</span>
+          </a>
+          {phone && (
+            <a href={buildTelUrl(phone)} className={cn(rowLink, "gap-3 tabular-nums")}>
+              <Phone aria-hidden className="size-4 text-navy" />
+              <span className="sr-only">Call </span>
+              {phone}
+            </a>
+          )}
         </nav>
 
-        <div className="border-t p-5">
+        <div className="grid gap-3 border-t p-5">
           <Link
-            href={'https://lcon.leafclutch.com.np/login'}
+            href={siteConfig.nav.enroll}
             onClick={close}
             className={cn(buttonVariants({ size: "xl" }), "w-full")}
+          >
+            Enroll Now
+          </Link>
+          <Link
+            href={siteConfig.nav.login}
+            onClick={close}
+            className={cn(buttonVariants({ variant: "outline", size: "xl" }), "w-full")}
           >
             Login
           </Link>

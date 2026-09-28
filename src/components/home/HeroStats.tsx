@@ -95,7 +95,7 @@ export function HeroStats({ stats, variant = "band", className }: HeroStatsProps
   return (
     <section
       aria-label="LeafClutch in numbers"
-      className={cn("relative overflow-hidden bg-navy", className)}
+      className={cn("relative z-[1] overflow-hidden bg-navy", className)}
     >
       {glow}
       <Container className="relative">{list}</Container>

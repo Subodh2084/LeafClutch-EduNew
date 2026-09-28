@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { PublicOnly } from "@/components/layout/PublicOnly";
+import { WhatsAppFloatingButton } from "@/components/layout/WhatsAppFloatingButton";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 
@@ -65,6 +66,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         {children}
         <PublicOnly>
           <Footer />
+          <WhatsAppFloatingButton number={settings.whatsapp} />
         </PublicOnly>
       </body>
     </html>

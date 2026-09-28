@@ -21,7 +21,7 @@ export function courseFields(categories: FieldOption[]): FieldDef[] {
     { name: "discount_price", label: "Discount price (Rs.)", type: "number", nullable: true, hint: "Leave empty for no discount" },
     { name: "duration", label: "Duration", type: "text", placeholder: "3 months" },
     { name: "learning_mode", label: "Learning mode", type: "select", options: opts(["online", "Online"], ["physical", "In-person"], ["hybrid", "Hybrid"]) },
-    { name: "udemy_url", label: "Udemy link", type: "text", nullable: true, placeholder: "https://www.udemy.com/…" },
+    { name: "udemy_url", label: "Udemy link", type: "text", nullable: true, placeholder: "https://www.udemy.com/…", hint: "Shows “Includes a free Udemy course” on the course page" },
     { name: "training_types", label: "Listed on training pages", type: "multiselect", options: trainingTypeOptions },
     { name: "certificate_available", label: "Certificate included", type: "checkbox" },
     { name: "is_featured", label: "Featured on the home page", type: "checkbox" },

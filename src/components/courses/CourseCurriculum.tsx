@@ -1,6 +1,7 @@
 import { FileDown } from "lucide-react";
 
 import { CourseDetailSection } from "@/components/courses/CourseDetailSection";
+import { DownloadCourseCurriculumButton } from "@/components/courses/DownloadCourseCurriculumButton";
 import {
   Accordion,
   AccordionContent,
@@ -12,16 +13,21 @@ import { cn } from "@/lib/utils";
 import type { CourseModuleWithLessons } from "@/types/course";
 
 interface CourseCurriculumProps {
+  courseSlug: string;
   modules: CourseModuleWithLessons[];
+  /** An uploaded PDF, offered only when there are no modules to generate one from. */
   pdfUrl: string | null;
 }
 
-export function CourseCurriculum({ modules, pdfUrl }: CourseCurriculumProps) {
+export function CourseCurriculum({ courseSlug, modules, pdfUrl }: CourseCurriculumProps) {
   if (modules.length === 0 && !pdfUrl) return null;
 
   const lessonCount = modules.reduce((sum, m) => sum + m.lessons.length, 0);
 
-  const download = pdfUrl ? (
+  // The generated PDF is built from these same modules, so it always matches the page.
+  const download = modules.length > 0 ? (
+    <DownloadCourseCurriculumButton slug={courseSlug} />
+  ) : pdfUrl ? (
     <a
       href={pdfUrl}
       target="_blank"

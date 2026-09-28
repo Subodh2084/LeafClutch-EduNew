@@ -2,6 +2,8 @@ import "server-only";
 
 import { cache } from "react";
 
+import { courseTools } from "@/data/course-tools";
+import { udemyBonusCourses } from "@/data/udemy-bonus-courses";
 import { byDisplayOrder, throwIfError } from "@/lib/data";
 import { getPublicClient } from "@/lib/supabase/public";
 import type { Faq } from "@/types/content";
@@ -121,6 +123,9 @@ export const getCourseBySlug = cache(async (slug: string): Promise<CourseDetail 
 
   return {
     ...row,
+    // Mock content until these have tables; swap for joins in COURSE_DETAIL.
+    tools: courseTools[row.slug] ?? [],
+    udemy_bonus_courses: udemyBonusCourses[row.slug] ?? [],
     benefits: row.benefits.sort(byDisplayOrder),
     modules: row.modules
       .sort(byDisplayOrder)

@@ -10,8 +10,11 @@ import { CourseFAQ } from "@/components/courses/CourseFAQ";
 import { CourseHero } from "@/components/courses/CourseHero";
 import { CourseInstructor } from "@/components/courses/CourseInstructor";
 import { CoursePayment } from "@/components/courses/CoursePayment";
-import { CourseUdemy } from "@/components/courses/CourseUdemy";
+import { CourseTools } from "@/components/courses/CourseTools";
+import { ExclusiveUdemyBonusCard } from "@/components/courses/ExclusiveUdemyBonusCard";
 import { RelatedCourses } from "@/components/courses/RelatedCourses";
+import { StickySidebar } from "@/components/courses/StickySidebar";
+import { UdemyBonusSection } from "@/components/courses/UdemyBonusSection";
 import { Container } from "@/components/layout/Container";
 import { getCourseBySlug, getRelatedCourses } from "@/lib/courses";
 
@@ -37,7 +40,15 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
   if (!course) notFound();
 
   const related = await getRelatedCourses(course.id, course.category_id);
-  const { benefits, modules: curriculum, instructors, installments, faqs } = course;
+  const {
+    benefits,
+    modules: curriculum,
+    instructors,
+    installments,
+    faqs,
+    tools,
+    udemy_bonus_courses: udemyBonusCourses,
+  } = course;
 
   return (
     <main id="main" className="flex-1">
@@ -50,22 +61,28 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
           aria-label="Enrollment"
           className="pt-8 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:pt-14 lg:pb-16"
         >
-          <div className="lg:sticky lg:top-24">
+          <StickySidebar className="space-y-5">
             <CourseEnrollmentCard
               course={course}
               moduleCount={curriculum.length}
               lessonCount={curriculum.reduce((sum, m) => sum + m.lessons.length, 0)}
               installmentCount={installments.length}
             />
-          </div>
+            {udemyBonusCourses.length > 0 && <ExclusiveUdemyBonusCard courseName={course.name} />}
+          </StickySidebar>
         </aside>
 
         <div className="min-w-0 space-y-14 py-12 sm:space-y-16 lg:col-start-1 lg:row-start-2 lg:pb-20">
           <CourseDescription description={course.description} />
           <CourseBenefits benefits={benefits} />
-          <CourseCurriculum modules={curriculum} pdfUrl={course.curriculum_pdf_url} />
+          <CourseTools tools={tools} />
+          <CourseCurriculum
+            courseSlug={course.slug}
+            modules={curriculum}
+            pdfUrl={course.curriculum_pdf_url}
+          />
+          <UdemyBonusSection courseName={course.name} courses={udemyBonusCourses} />
           <CoursePayment course={course} installments={installments} />
-          <CourseUdemy url={course.udemy_url} />
           <CourseInstructor instructors={instructors} />
           <CourseCertificate course={course} />
           <CourseFAQ faqs={faqs} />

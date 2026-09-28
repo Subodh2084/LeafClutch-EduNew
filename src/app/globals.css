@@ -20,6 +20,7 @@
   --color-blue-text: var(--brand-blue-text);
   --color-blue-light: var(--brand-blue-light);
   --color-green: var(--brand-green);
+  --color-green-text: var(--brand-green-text);
   --color-teal: var(--brand-teal);
   --color-surface-blue: var(--surface-blue);
   --color-surface-blue-strong: var(--surface-blue-strong);
@@ -71,6 +72,10 @@
   --color-window-yellow: #febc2e;
   --color-window-green: #28c840;
 
+  /* WhatsApp green, darkened from #25d366 so the button and its white glyph
+     both reach 3:1 against white. */
+  --color-whatsapp: #1da851;
+
   --animate-marquee: marquee 30s linear infinite;
   @keyframes marquee {
     to {
@@ -96,6 +101,9 @@
   --brand-blue-text: #1f5bd8;
   --brand-blue-light: #7fb8ff;
   --brand-green: #28c840;
+  /* #28c840 is 2.2:1 on white. This step (5:1) is for small text and icons on
+     light surfaces, e.g. the Udemy bonus; #28c840 itself reads fine on navy. */
+  --brand-green-text: #15803d;
   --brand-teal: #2dd4bf;
   --surface-blue: #eef4ff;
   --surface-blue-strong: #d9e8f5;
@@ -209,6 +217,11 @@
   border-image: linear-gradient(var(--surface-blue), var(--surface-blue)) fill 0 / / 0 100vmax;
 }
 
+/* Same technique in brand navy (course hero). */
+@utility bleed-navy {
+  border-image: linear-gradient(var(--brand-navy), var(--brand-navy)) fill 0 / / 0 100vmax;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
@@ -220,26 +233,200 @@
   }
 }
 
-@keyframes featured-course-enter {
-  from {
-    opacity: 0;
-    transform: translateX(24px) scale(0.985);
+/* Featured courses (Swiper pagination): 24px targets around a small dot that
+   stretches into a bar for the active slide. */
+.featured-course-bullet {
+  display: inline-flex;
+  width: 1.5rem;
+  height: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  cursor: pointer;
+}
+
+.featured-course-bullet::before {
+  content: "";
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 9999px;
+  background: rgb(6 33 101 / 0.25);
+  transition:
+    width 300ms,
+    background-color 300ms;
+}
+
+.featured-course-bullet:hover::before {
+  background: rgb(6 33 101 / 0.5);
+}
+
+.featured-course-bullet.is-active::before {
+  width: 1.25rem;
+  background: var(--brand-navy);
+}
+
+/* Udemy bonus attention cues (hero pill, exclusive bonus card). One shared
+   4.5s cycle: idle for most of it, then a sheen sweeps across while the gift
+   icon wiggles, so they catch the eye without constant motion.
+   .bonus-sheen needs a positioned, overflow-hidden host. */
+@keyframes bonus-sheen {
+  0%,
+  60% {
+    transform: translateX(-120%) skewX(-20deg);
   }
 
-  to {
-    opacity: 1;
-    transform: translateX(0) scale(1);
+  100% {
+    transform: translateX(260%) skewX(-20deg);
   }
 }
 
-.featured-course-enter {
-  animation: featured-course-enter 500ms cubic-bezier(0.22, 1, 0.36, 1);
+@keyframes gift-wiggle {
+  0%,
+  70%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+
+  74% {
+    transform: rotate(-12deg) scale(1.15);
+  }
+
+  78% {
+    transform: rotate(10deg) scale(1.15);
+  }
+
+  82% {
+    transform: rotate(-6deg) scale(1.08);
+  }
+
+  86% {
+    transform: rotate(0) scale(1);
+  }
+}
+
+@keyframes bonus-glow {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.bonus-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 40%;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.18), transparent);
+  transform: translateX(-120%) skewX(-20deg);
+  animation: bonus-sheen 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.gift-wiggle {
+  transform-origin: 50% 60%;
+  animation: gift-wiggle 4.5s ease-in-out infinite;
+}
+
+/* A green halo that breathes around the card's edge (shadow only, no fill). */
+.bonus-glow {
+  position: relative;
+}
+
+.bonus-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 1px rgb(40 200 64 / 0.6),
+    0 0 28px 2px rgb(40 200 64 / 0.35);
+  animation: bonus-glow 3s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .featured-course-enter {
+  .bonus-sheen::after,
+  .gift-wiggle {
     animation: none;
   }
+
+  .bonus-sheen::after {
+    opacity: 0;
+  }
+
+  .bonus-glow::before {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+/* Floating WhatsApp button: one soft ring expands and fades behind it. */
+@keyframes whatsapp-glow {
+  from {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.55);
+  }
+}
+
+.whatsapp-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--color-whatsapp);
+  animation: whatsapp-glow 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-glow::before {
+    animation: none;
+    opacity: 0;
+  }
+}
+@keyframes bonus-shake {
+  0%,
+  68%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  71% {
+    transform: translate3d(-2px, 0, 0) rotate(-0.4deg);
+  }
+
+  74% {
+    transform: translate3d(3px, 0, 0) rotate(0.4deg);
+  }
+
+  77% {
+    transform: translate3d(-3px, 0, 0) rotate(-0.35deg);
+  }
+
+  80% {
+    transform: translate3d(2px, 0, 0) rotate(0.3deg);
+  }
+
+  83% {
+    transform: translate3d(-1px, 0, 0) rotate(-0.15deg);
+  }
+
+  86% {
+    transform: translate3d(0, 0, 0) rotate(0);
+  }
+}
+
+.bonus-shake {
+  animation: bonus-shake 4.5s ease-in-out infinite;
 }
 
 /* Hero: tool logos drifting in the background. Each icon sets its own
@@ -342,6 +529,7 @@
 
 .hero-section {
   position: relative;
+  z-index: 30;
   isolation: isolate;
   background:
     radial-gradient(

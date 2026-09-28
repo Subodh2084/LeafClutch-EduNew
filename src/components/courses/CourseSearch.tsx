@@ -124,7 +124,7 @@ function SuggestSearch({
   return (
     <div
       ref={containerRef}
-      className={cn("relative", className)}
+      className={cn("relative z-40", className)}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
     >
@@ -148,29 +148,29 @@ function SuggestSearch({
       </p>
 
       {showResults && (
-        <div className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-xl border bg-popover shadow-card-hover">
+        <div className="absolute inset-x-0 top-full z-[100] mt-2 overflow-hidden rounded-xl border bg-popover shadow-xl">
           {results.length > 0 ? (
             <>
-              <ul className="max-h-80 overflow-y-auto p-2">
+              <ul className="max-h-72 sm:max-h-80 overflow-y-auto p-1.5 sm:p-2 space-y-0.5">
                 {results.slice(0, limit).map((course) => (
                   <li key={course.id}>
                     <CourseSearchResult course={course} />
                   </li>
                 ))}
               </ul>
-              <div className="border-t p-2">
+              <div className="border-t p-1.5 sm:p-2">
                 <Link
                   href={coursesHref({ search: trimmed })}
                   data-search-result
-                  className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-navy outline-none hover:bg-surface-blue focus-visible:bg-surface-blue focus-visible:ring-2 focus-visible:ring-ring/50"
+                  className="flex items-center justify-between rounded-lg px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-navy outline-none hover:bg-surface-blue focus-visible:bg-surface-blue focus-visible:ring-2 focus-visible:ring-ring/50"
                 >
-                  See all {results.length} {results.length === 1 ? "result" : "results"}
-                  <ArrowRight aria-hidden className="size-4" />
+                  <span>See all {results.length} {results.length === 1 ? "result" : "results"}</span>
+                  <ArrowRight aria-hidden className="size-4 shrink-0" />
                 </Link>
               </div>
             </>
           ) : (
-            <p className="px-4 py-5 text-sm text-muted-foreground">
+            <p className="px-3 sm:px-4 py-4 sm:py-5 text-xs sm:text-sm text-muted-foreground">
               No courses match “{trimmed}”.{" "}
               <Link
                 href="/courses"

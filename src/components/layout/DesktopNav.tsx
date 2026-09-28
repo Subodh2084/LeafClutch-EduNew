@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronRight } from "lucide-react";
 
 import { CategoryIcon } from "@/components/courses/CategoryIcon";
 import {
@@ -12,6 +12,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { siteConfig } from "@/config/site";
 import { courseHref, coursesHref } from "@/lib/course-display";
@@ -115,6 +116,28 @@ export function DesktopNav({ groups }: { groups: CourseNavGroup[] }) {
               ))}
             </ul>
           </NavigationMenuContent>
+        </NavigationMenuItem>
+
+        <NavigationMenuItem>
+          <NavigationMenuLink
+            render={<Link href={siteConfig.nav.contact} />}
+            className={navigationMenuTriggerStyle()}
+          >
+            Contact Us
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+
+        <NavigationMenuItem>
+          <NavigationMenuLink
+            href={siteConfig.nav.verifyCertificate}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(navigationMenuTriggerStyle(), "gap-1")}
+          >
+            Verify Certificate
+            <ArrowUpRight aria-hidden className="size-3.5 text-muted-foreground" />
+            <span className="sr-only">(opens in a new tab)</span>
+          </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>

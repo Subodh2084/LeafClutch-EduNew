@@ -1,15 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import {
-  ArrowRight,
-  Clock,
-  MonitorPlay,
-  Pause,
-  Play,
-  Star,
-} from "lucide-react";
+import { useRef, useState, type FocusEvent } from "react";
+import { ArrowRight, Clock, MonitorPlay, Pause, Play, Star } from "lucide-react";
+import type { Swiper as SwiperClass } from "swiper";
+import { A11y, Autoplay, Pagination } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 import { CoursePrice } from "@/components/courses/CoursePrice";
 import { CourseThumbnail } from "@/components/courses/CourseThumbnail";
@@ -18,165 +14,108 @@ import { courseHref, learningModeLabels } from "@/lib/course-display";
 import { cn } from "@/lib/utils";
 import type { Course } from "@/types/course";
 
-const ROTATE_MS = 4500;
+import "swiper/css";
+import "swiper/css/a11y";
+import "swiper/css/pagination";
+
+const AUTOPLAY_DELAY = 5000;
+// The dots live below the slides, outside the Swiper element. Passing `el` as a
+// selector stops swiper/react from rendering its own pagination inside.
+const PAGINATION_CLASS = "featured-course-pagination";
 
 export function FeaturedCourse({ courses }: { courses: Course[] }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const swiperRef = useRef<SwiperClass | null>(null);
   const [paused, setPaused] = useState(false);
 
-  /*
-   * IMPORTANT:
-   * Autoplay only makes sense when there are at least 2 courses.
-   */
+  if (courses.length === 0) return null;
   const canRotate = courses.length > 1;
 
-  /*
-   * Automatic rotation
-   */
-  useEffect(() => {
-    if (!canRotate || paused) {
-      return;
-    }
+  function togglePlayback() {
+    const autoplay = swiperRef.current?.autoplay;
+    if (!autoplay) return;
+    if (paused) autoplay.start();
+    else autoplay.stop();
+    setPaused(!paused);
+  }
 
-    const timer = window.setTimeout(() => {
-      setCurrentIndex((prevIndex) => {
-        if (prevIndex >= courses.length - 1) {
-          return 0;
-        }
+  // Keyboard users get a still carousel while they are inside it. Mouse
+  // clicks don't match :focus-visible, and hover already pauses autoplay.
+  function handleFocus(event: FocusEvent<HTMLElement>) {
+    if (!paused && event.target.matches(":focus-visible")) swiperRef.current?.autoplay?.stop();
+  }
 
-        return prevIndex + 1;
-      });
-    }, ROTATE_MS);
-
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, [currentIndex, canRotate, paused, courses.length]);
-
-  /*
-   * If courses change dynamically and current index
-   * becomes invalid, reset to first course.
-   */
-  useEffect(() => {
-    if (currentIndex >= courses.length) {
-      setCurrentIndex(0);
-    }
-  }, [currentIndex, courses.length]);
-
-  const course = courses[currentIndex];
-
-  if (!course) {
-    return null;
+  function handleBlur(event: FocusEvent<HTMLElement>) {
+    if (event.currentTarget.contains(event.relatedTarget)) return;
+    const autoplay = swiperRef.current?.autoplay;
+    if (!paused && autoplay && !autoplay.running) autoplay.start();
   }
 
   return (
     <section
-      aria-roledescription="carousel"
       aria-label="Featured courses"
-      className="w-full"
+      className="w-full min-w-0"
+      onFocus={canRotate ? handleFocus : undefined}
+      onBlur={canRotate ? handleBlur : undefined}
     >
-  <article
-  key={course.id}
-  aria-roledescription="slide"
-  aria-label={`${currentIndex + 1} of ${courses.length}`}
-  className="featured-course-enter overflow-hidden rounded-2xl border bg-card shadow-card-hover"
->
-        {/* Thumbnail */}
-       <div className="group relative overflow-hidden">
-          <CourseThumbnail
-            course={course}
-            decorative
-            priority
-            sizes="(min-width: 1024px) 440px, 100vw"
-          />
+      <Swiper
+        modules={[A11y, Autoplay, Pagination]}
+        slidesPerView={1}
+        spaceBetween={40}
+        speed={600}
+        loop={canRotate}
+        autoplay={
+          canRotate && {
+            delay: AUTOPLAY_DELAY,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true,
+          }
+        }
+        pagination={
+          canRotate && {
+            el: `.${PAGINATION_CLASS}`,
+            clickable: true,
+            bulletClass: "featured-course-bullet",
+            bulletActiveClass: "is-active",
+          }
+        }
+        a11y={{
+          containerRoleDescriptionMessage: "carousel",
+          itemRoleDescriptionMessage: "slide",
+          // Each slide is labelled below with the real position.
+          slideLabelMessage: "",
+          paginationBulletMessage: "Show featured course {{index}}",
+        }}
+        onSwiper={(swiper) => {
+          swiperRef.current = swiper;
+          if (canRotate && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            swiper.autoplay.stop();
+            setPaused(true);
+          }
+        }}
+        // The padding (offset by negative margins) keeps the card shadow from being clipped.
+        // swiper/css is unlayered, so these need ! to beat its .swiper margin/padding.
+        className="-mx-4! -mt-2! -mb-8! px-4! pt-2! pb-8!"
+      >
+        {courses.map((course, index) => (
+          <SwiperSlide
+            key={course.id}
+            aria-label={`${index + 1} of ${courses.length}`}
+            className="h-auto!"
+          >
+            <FeaturedCourseCard course={course} priority={index === 0} />
+          </SwiperSlide>
+        ))}
+      </Swiper>
 
-          <span className="absolute right-5 top-5 inline-flex items-center gap-1.5 rounded-full border bg-white px-3 py-1 text-xs font-medium text-navy shadow-card">
-            <Star
-              aria-hidden
-              className="size-3.5 fill-window-yellow text-window-yellow"
-            />
-            Featured course
-          </span>
-        </div>
-
-        {/* Content */}
-        <div className="p-6">
-          <p className="text-xs font-medium text-blue-text">
-            {course.category.name}
-          </p>
-
-          <h2 className="mt-2 text-xl font-semibold text-foreground">
-            {course.name}
-          </h2>
-
-          <p className="mt-2 line-clamp-2 min-h-[2lh] text-sm leading-relaxed text-muted-foreground">
-            {course.short_description}
-          </p>
-
-          <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-            <li className="flex items-center gap-1.5">
-              <Clock aria-hidden className="size-4" />
-              <span className="sr-only">Duration: </span>
-              {course.duration}
-            </li>
-
-            <li className="flex items-center gap-1.5">
-              <MonitorPlay aria-hidden className="size-4" />
-              <span className="sr-only">Learning mode: </span>
-              {learningModeLabels[course.learning_mode]}
-            </li>
-          </ul>
-
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t pt-5">
-            <CoursePrice course={course} />
-
-            <Link
-              href={courseHref(course.slug)}
-              className={cn(
-                buttonVariants({ size: "lg" }),
-                "px-4"
-              )}
-            >
-              View course
-              <ArrowRight data-icon="inline-end" aria-hidden />
-            </Link>
-          </div>
-        </div>
-      </article>
-
-      {/* Controls */}
       {canRotate && (
         <div className="mt-4 flex items-center justify-center gap-1">
-          {courses.map((item, index) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setCurrentIndex(index)}
-              aria-label={`Show ${item.name}`}
-              aria-current={index === currentIndex}
-              className="group/dot flex size-6 items-center justify-center rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-            >
-              <span
-                className={cn(
-                  "h-1.5 rounded-full transition-all duration-300",
-                  index === currentIndex
-                    ? "w-5 bg-navy"
-                    : "w-1.5 bg-navy/25 group-hover/dot:bg-navy/50"
-                )}
-              />
-            </button>
-          ))}
-
+          <div className={cn(PAGINATION_CLASS, "flex w-auto! items-center")} />
           <Button
             type="button"
             variant="ghost"
             size="icon-sm"
-            onClick={() => setPaused((prev) => !prev)}
-            aria-label={
-              paused
-                ? "Resume rotating featured courses"
-                : "Pause rotating featured courses"
-            }
+            onClick={togglePlayback}
+            aria-label={paused ? "Resume rotating featured courses" : "Pause rotating featured courses"}
             className="ml-1 text-muted-foreground"
           >
             {paused ? <Play /> : <Pause />}
@@ -184,5 +123,53 @@ export function FeaturedCourse({ courses }: { courses: Course[] }) {
         </div>
       )}
     </section>
+  );
+}
+
+function FeaturedCourseCard({ course, priority }: { course: Course; priority: boolean }) {
+  return (
+    <article className="flex h-full flex-col overflow-hidden rounded-2xl border bg-card shadow-card-hover">
+      <div className="relative">
+        <CourseThumbnail
+          course={course}
+          decorative
+          priority={priority}
+          sizes="(min-width: 1024px) 440px, 100vw"
+        />
+        <span className="absolute top-5 right-5 inline-flex items-center gap-1.5 rounded-full border bg-white px-3 py-1 text-xs font-medium text-navy shadow-card">
+          <Star aria-hidden className="size-3.5 fill-window-yellow text-window-yellow" />
+          Featured course
+        </span>
+      </div>
+
+      <div className="flex flex-1 flex-col p-6">
+        <p className="text-xs font-medium text-blue-text">{course.category.name}</p>
+        <h2 className="mt-2 text-xl font-semibold text-foreground">{course.name}</h2>
+        <p className="mt-2 line-clamp-2 min-h-[2lh] text-sm leading-relaxed text-muted-foreground">
+          {course.short_description}
+        </p>
+
+        <ul className="mt-4 mb-5 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+          <li className="flex items-center gap-1.5">
+            <Clock aria-hidden className="size-4" />
+            <span className="sr-only">Duration: </span>
+            {course.duration}
+          </li>
+          <li className="flex items-center gap-1.5">
+            <MonitorPlay aria-hidden className="size-4" />
+            <span className="sr-only">Learning mode: </span>
+            {learningModeLabels[course.learning_mode]}
+          </li>
+        </ul>
+
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-4 border-t pt-5">
+          <CoursePrice course={course} />
+          <Link href={courseHref(course.slug)} className={cn(buttonVariants({ size: "lg" }), "px-4")}>
+            View course
+            <ArrowRight data-icon="inline-end" aria-hidden />
+          </Link>
+        </div>
+      </div>
+    </article>
   );
 }
