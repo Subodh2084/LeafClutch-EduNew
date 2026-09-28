@@ -1,15 +1,13 @@
 import "server-only";
 
-import { getFeaturedTestimonials, getSiteSettings } from "@/lib/content";
-import { getCoursesForTraining } from "@/lib/courses";
+import { getContactInfo, getContactPageContent, getFeaturedTestimonials, getSiteSettings } from "@/lib/content";
 import { throwIfError } from "@/lib/data";
 import { getPublicClient } from "@/lib/supabase/public";
 import { buildTrainingInquiryMessage, buildWhatsAppUrl } from "@/lib/whatsapp";
 import type { ImageAsset } from "@/types/about";
+import type { ContactInfo, ContactPageContent } from "@/types/contact";
 import type { Testimonial } from "@/types/content";
-import type { Course } from "@/types/course";
 import type {
-  Partnership,
   TrainingFeature,
   TrainingIcon,
   TrainingPageCopy,
@@ -20,8 +18,8 @@ import type {
 } from "@/types/training";
 
 // Training pages (corporate / academic / government). Everything comes from
-// Supabase: text (training_pages), lists and images, partners, courses and
-// testimonials.
+// Supabase: text (training_pages), lists and images, testimonials, and the
+// contact details shown at the end of the page.
 
 /** The page's text from training_pages, in the shape the components expect. */
 async function getTrainingCopy(type: TrainingType): Promise<TrainingPageCopy> {
@@ -132,38 +130,20 @@ export async function getTrainingPageContent(type: TrainingType): Promise<Traini
   };
 }
 
-/** Active partners for a training type, in display order. */
-export async function getTrainingPartners(type: TrainingType): Promise<Partnership[]> {
-  const { data, error } = await getPublicClient()
-    .from("training_partners")
-    .select("id, type, name, logo, website, display_order, is_active")
-    .eq("type", type)
-    .order("display_order");
-  throwIfError(error, `load ${type} training partners`);
-
-  // Nullable columns become optional fields, as the Partnership type expects.
-  type PartnerRow = Omit<Partnership, "logo" | "website"> & { logo: string | null; website: string | null };
-  return (data as PartnerRow[]).map(({ logo, website, ...partner }) => ({
-    ...partner,
-    logo: logo ?? undefined,
-    website: website ?? undefined,
-  }));
-}
-
 export interface TrainingPage {
   content: TrainingPageData;
-  partners: Partnership[];
-  courses: Course[];
   testimonials: Testimonial[];
+  /** The contact form and details at the end of the page. */
+  contact: { info: ContactInfo; content: ContactPageContent };
 }
 
 /** Everything a training page renders, fetched in parallel. */
 export async function getTrainingPage(type: TrainingType): Promise<TrainingPage> {
-  const [content, partners, courses, testimonials] = await Promise.all([
+  const [content, testimonials, info, contactContent] = await Promise.all([
     getTrainingPageContent(type),
-    getTrainingPartners(type),
-    getCoursesForTraining(type),
     getFeaturedTestimonials(3, type),
+    getContactInfo(),
+    getContactPageContent(),
   ]);
-  return { content, partners, courses, testimonials };
+  return { content, testimonials, contact: { info, content: contactContent } };
 }

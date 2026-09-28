@@ -1,3 +1,850 @@
+-- LeafClutch — complete Supabase setup (generated; do not edit by hand).
+--
+-- Paste this whole file into the Supabase SQL editor and click Run. It is safe
+-- to run again at any time: it creates whatever is missing and brings existing
+-- tables up to date. Each part of the seed runs only once per database, so
+-- rows you edited or deleted in Supabase or the admin are left alone.
+--
+-- Generated from supabase/migrations/*.sql and supabase/seed.sql by
+-- "npm run db:bundle". Contents: 15 migrations, then the seed.
+
+-- ===========================================================================
+-- 20260924000001_auth_and_helpers.sql
+-- ===========================================================================
+
+-- 1/10 · Auth, admin role and shared helpers
+--
+-- Public visitors read published/active content through RLS. Admins write
+-- through server actions that run as the signed-in admin, so RLS is enforced
+-- on every write too.
+--
+-- Every migration is safe to run again: on an empty database it creates
+-- everything, on an existing one it changes nothing that is already there.
+--
+-- Create the first admin:
+--   1. Supabase Dashboard → Authentication → Users → Add user
+--   2. SQL editor: select public.promote_to_admin('you@example.com');
+
+create or replace function public.set_updated_at()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- Profiles & admin role
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.profiles (
+  id uuid primary key references auth.users (id) on delete cascade,
+  email text,
+  full_name text,
+  role text not null default 'student' check (role in ('admin', 'student')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+drop trigger if exists set_updated_at on public.profiles;
+create trigger set_updated_at before update on public.profiles
+  for each row execute function public.set_updated_at();
+
+-- Role is never taken from sign-up metadata (users control that), so the only
+-- way to become admin is promote_to_admin(), which only the SQL editor can run.
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  insert into public.profiles (id, email, full_name)
+  values (new.id, new.email, coalesce(new.raw_user_meta_data ->> 'full_name', ''))
+  on conflict (id) do update set email = excluded.email;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
+
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1 from public.profiles where id = auth.uid() and role = 'admin'
+  );
+$$;
+
+create or replace function public.promote_to_admin(user_email text)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  update public.profiles set role = 'admin' where email = user_email;
+  if not found then
+    raise exception 'No profile found for %', user_email;
+  end if;
+end;
+$$;
+
+revoke execute on function public.promote_to_admin(text) from public, anon, authenticated;
+
+alter table public.profiles enable row level security;
+grant select on public.profiles to authenticated;
+-- Read-only for users: no update policy, so nobody can change their own role.
+drop policy if exists "Users read own profile" on public.profiles;
+create policy "Users read own profile" on public.profiles for select to authenticated
+  using (id = (select auth.uid()) or (select public.is_admin()));
+
+-- ---------------------------------------------------------------------------
+-- Content-table setup, used by the following migrations
+-- ---------------------------------------------------------------------------
+-- The `private` schema is not exposed through the API.
+
+create schema if not exists private;
+
+-- For a content table: enable RLS, let admins do everything, grant table
+-- access (RLS still decides which rows), and keep updated_at current.
+-- Public read policies are written per table, next to the table.
+create or replace procedure private.setup_content_table(t text, has_updated_at boolean default true)
+language plpgsql
+set search_path = ''
+as $$
+begin
+  execute format('alter table public.%I enable row level security', t);
+  execute format('drop policy if exists "Admins manage %1$s" on public.%1$I', t);
+  execute format(
+    'create policy "Admins manage %1$s" on public.%1$I for all to authenticated
+       using ((select public.is_admin())) with check ((select public.is_admin()))', t);
+  execute format('grant select on public.%I to anon, authenticated', t);
+  execute format('grant insert, update, delete on public.%I to authenticated', t);
+  if has_updated_at then
+    execute format('drop trigger if exists set_updated_at on public.%I', t);
+    execute format(
+      'create trigger set_updated_at before update on public.%I
+         for each row execute function public.set_updated_at()', t);
+  end if;
+end;
+$$;
+
+revoke all on procedure private.setup_content_table(text, boolean) from public;
+
+-- ===========================================================================
+-- 20260924000002_courses.sql
+-- ===========================================================================
+
+-- 2/10 · Courses: categories, courses, benefits, curriculum, instalments
+
+create table if not exists public.course_categories (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  short_name text not null,
+  slug text not null unique check (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
+  description text,
+  image_url text,
+  display_order integer not null default 0,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.courses (
+  id uuid primary key default gen_random_uuid(),
+  -- restrict: a category can't be deleted while courses still use it
+  category_id uuid not null references public.course_categories (id) on delete restrict,
+  name text not null,
+  slug text not null unique check (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
+  short_description text not null,
+  description text not null default '',
+  thumbnail text,
+  actual_price numeric(10, 2) not null check (actual_price >= 0),
+  discount_price numeric(10, 2)
+    check (discount_price is null or (discount_price >= 0 and discount_price < actual_price)),
+  duration text not null,
+  learning_mode text not null default 'online' check (learning_mode in ('online', 'physical', 'hybrid')),
+  curriculum_pdf_url text,
+  udemy_url text check (udemy_url is null or udemy_url ~ '^https://'),
+  certificate_available boolean not null default true,
+  is_featured boolean not null default false,
+  status text not null default 'draft' check (status in ('draft', 'published', 'archived')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- "What You Will Get"
+create table if not exists public.course_benefits (
+  id uuid primary key default gen_random_uuid(),
+  course_id uuid not null references public.courses (id) on delete cascade,
+  title text not null,
+  description text not null default '',
+  display_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.course_modules (
+  id uuid primary key default gen_random_uuid(),
+  course_id uuid not null references public.courses (id) on delete cascade,
+  title text not null,
+  description text,
+  display_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.course_lessons (
+  id uuid primary key default gen_random_uuid(),
+  module_id uuid not null references public.course_modules (id) on delete cascade,
+  title text not null,
+  description text,
+  display_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- Instalment plans are shown in the existing Payment Options section.
+create table if not exists public.course_installments (
+  id uuid primary key default gen_random_uuid(),
+  course_id uuid not null references public.courses (id) on delete cascade,
+  title text not null,
+  percentage numeric(5, 2) not null check (percentage > 0 and percentage <= 100),
+  description text not null default '',
+  display_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists courses_category_id_idx on public.courses (category_id);
+create index if not exists courses_status_idx on public.courses (status);
+create index if not exists course_benefits_course_id_idx on public.course_benefits (course_id);
+create index if not exists course_modules_course_id_idx on public.course_modules (course_id);
+create index if not exists course_lessons_module_id_idx on public.course_lessons (module_id);
+create index if not exists course_installments_course_id_idx on public.course_installments (course_id);
+
+call private.setup_content_table('course_categories');
+call private.setup_content_table('courses');
+call private.setup_content_table('course_benefits');
+call private.setup_content_table('course_modules');
+call private.setup_content_table('course_lessons');
+call private.setup_content_table('course_installments');
+
+drop policy if exists "Public reads active categories" on public.course_categories;
+create policy "Public reads active categories" on public.course_categories for select
+  using (is_active);
+
+drop policy if exists "Public reads published courses" on public.courses;
+create policy "Public reads published courses" on public.courses for select
+  using (status = 'published');
+
+-- Course children are visible exactly when their course is.
+drop policy if exists "Public reads benefits of published courses" on public.course_benefits;
+create policy "Public reads benefits of published courses" on public.course_benefits for select
+  using (exists (select 1 from public.courses c where c.id = course_id and c.status = 'published'));
+
+drop policy if exists "Public reads modules of published courses" on public.course_modules;
+create policy "Public reads modules of published courses" on public.course_modules for select
+  using (exists (select 1 from public.courses c where c.id = course_id and c.status = 'published'));
+
+drop policy if exists "Public reads lessons of published courses" on public.course_lessons;
+create policy "Public reads lessons of published courses" on public.course_lessons for select
+  using (exists (
+    select 1 from public.course_modules m
+    join public.courses c on c.id = m.course_id
+    where m.id = module_id and c.status = 'published'
+  ));
+
+drop policy if exists "Public reads installments of published courses" on public.course_installments;
+create policy "Public reads installments of published courses" on public.course_installments for select
+  using (exists (select 1 from public.courses c where c.id = course_id and c.status = 'published'));
+
+-- ===========================================================================
+-- 20260924000003_instructors.sql
+-- ===========================================================================
+
+-- 3/10 · Instructors (one instructor can teach many courses)
+
+create table if not exists public.instructors (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  designation text not null,
+  bio text not null default '',
+  image text,
+  linkedin_url text check (linkedin_url is null or linkedin_url ~ '^https://'),
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.course_instructors (
+  course_id uuid not null references public.courses (id) on delete cascade,
+  instructor_id uuid not null references public.instructors (id) on delete cascade,
+  display_order integer not null default 0,
+  primary key (course_id, instructor_id)
+);
+
+create index if not exists course_instructors_instructor_id_idx on public.course_instructors (instructor_id);
+
+call private.setup_content_table('instructors');
+call private.setup_content_table('course_instructors', has_updated_at => false);
+
+drop policy if exists "Public reads active instructors" on public.instructors;
+create policy "Public reads active instructors" on public.instructors for select
+  using (is_active);
+
+drop policy if exists "Public reads course instructors" on public.course_instructors;
+create policy "Public reads course instructors" on public.course_instructors for select
+  using (exists (select 1 from public.courses c where c.id = course_id and c.status = 'published'));
+
+-- ===========================================================================
+-- 20260924000004_site_content.sql
+-- ===========================================================================
+
+-- 4/12 · Shared content: FAQs, testimonials, offers, site settings
+
+create table if not exists public.faqs (
+  id uuid primary key default gen_random_uuid(),
+  question text not null,
+  answer text not null,
+  category text not null default 'general'
+    check (category in ('general', 'course', 'enrollment', 'payment', 'certificate')),
+  -- null = site-wide FAQ
+  course_id uuid references public.courses (id) on delete cascade,
+  display_order integer not null default 0,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- One shared table for all testimonials.
+create table if not exists public.testimonials (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  image text,
+  course_id uuid references public.courses (id) on delete set null,
+  review text not null,
+  rating smallint check (rating between 1 and 5),
+  is_featured boolean not null default false,
+  is_active boolean not null default true,
+  display_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.offers (
+  id uuid primary key default gen_random_uuid(),
+  -- optional: an offer may promote a course without copying its details
+  course_id uuid references public.courses (id) on delete set null,
+  title text not null,
+  description text not null default '',
+  thumbnail text,
+  price numeric(10, 2) check (price is null or price >= 0),
+  discount_price numeric(10, 2) check (discount_price is null or discount_price >= 0),
+  is_active boolean not null default true,
+  display_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- Global settings. Exactly one row (id = 1).
+create table if not exists public.site_settings (
+  id smallint primary key default 1 check (id = 1),
+  email text,
+  phone text,
+  -- international format, digits only, e.g. 9779800000000
+  whatsapp text check (whatsapp is null or whatsapp ~ '^[0-9]{8,15}$'),
+  address text,
+  -- [{ "label": "Facebook", "href": "https://…" }]
+  social_links jsonb not null default '[]'::jsonb check (jsonb_typeof(social_links) = 'array'),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists faqs_course_id_idx on public.faqs (course_id);
+create index if not exists testimonials_course_id_idx on public.testimonials (course_id);
+create index if not exists offers_course_id_idx on public.offers (course_id);
+
+call private.setup_content_table('faqs');
+call private.setup_content_table('testimonials');
+call private.setup_content_table('offers');
+call private.setup_content_table('site_settings');
+
+drop policy if exists "Public reads active faqs" on public.faqs;
+create policy "Public reads active faqs" on public.faqs for select
+  using (is_active);
+
+drop policy if exists "Public reads active testimonials" on public.testimonials;
+create policy "Public reads active testimonials" on public.testimonials for select
+  using (is_active);
+
+drop policy if exists "Public reads active offers" on public.offers;
+create policy "Public reads active offers" on public.offers for select
+  using (is_active);
+
+drop policy if exists "Public reads site settings" on public.site_settings;
+create policy "Public reads site settings" on public.site_settings for select
+  using (true);
+
+-- ===========================================================================
+-- 20260924000005_training.sql
+-- ===========================================================================
+
+-- 5/12 · Corporate / academic / government training (one table for all three)
+-- Inquiries go to WhatsApp and are not stored.
+
+create table if not exists public.training_programs (
+  id uuid primary key default gen_random_uuid(),
+  type text not null check (type in ('corporate', 'academic', 'government')),
+  title text not null,
+  slug text not null unique check (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
+  short_description text not null,
+  description text not null default '',
+  thumbnail text,
+  duration text,
+  status text not null default 'draft' check (status in ('draft', 'published')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.training_objectives (
+  id uuid primary key default gen_random_uuid(),
+  training_program_id uuid not null references public.training_programs (id) on delete cascade,
+  title text not null,
+  description text,
+  display_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.training_topics (
+  id uuid primary key default gen_random_uuid(),
+  training_program_id uuid not null references public.training_programs (id) on delete cascade,
+  title text not null,
+  description text,
+  display_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.training_gallery (
+  id uuid primary key default gen_random_uuid(),
+  training_program_id uuid not null references public.training_programs (id) on delete cascade,
+  title text,
+  description text,
+  image_url text not null,
+  display_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists training_programs_type_status_idx on public.training_programs (type, status);
+create index if not exists training_objectives_program_id_idx on public.training_objectives (training_program_id);
+create index if not exists training_topics_program_id_idx on public.training_topics (training_program_id);
+create index if not exists training_gallery_program_id_idx on public.training_gallery (training_program_id);
+
+call private.setup_content_table('training_programs');
+call private.setup_content_table('training_objectives');
+call private.setup_content_table('training_topics');
+call private.setup_content_table('training_gallery');
+
+drop policy if exists "Public reads published training" on public.training_programs;
+create policy "Public reads published training" on public.training_programs for select
+  using (status = 'published');
+
+drop policy if exists "Public reads objectives of published training" on public.training_objectives;
+create policy "Public reads objectives of published training" on public.training_objectives for select
+  using (exists (select 1 from public.training_programs p where p.id = training_program_id and p.status = 'published'));
+
+drop policy if exists "Public reads topics of published training" on public.training_topics;
+create policy "Public reads topics of published training" on public.training_topics for select
+  using (exists (select 1 from public.training_programs p where p.id = training_program_id and p.status = 'published'));
+
+drop policy if exists "Public reads gallery of published training" on public.training_gallery;
+create policy "Public reads gallery of published training" on public.training_gallery for select
+  using (exists (select 1 from public.training_programs p where p.id = training_program_id and p.status = 'published'));
+
+-- ===========================================================================
+-- 20260924000006_storage.sql
+-- ===========================================================================
+
+-- 6/12 · Storage buckets
+-- All buckets hold intentionally public assets, so they are public and served
+-- by URL. Size and type limits are enforced here and again in the upload code
+-- (src/lib/storage.ts). SVG is excluded on purpose: it can carry scripts.
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types) values
+  ('course-thumbnails',     'course-thumbnails',     true, 5242880,  array['image/jpeg', 'image/png', 'image/webp']),
+  ('course-curriculums',    'course-curriculums',    true, 10485760, array['application/pdf']),
+  ('instructor-images',     'instructor-images',     true, 5242880,  array['image/jpeg', 'image/png', 'image/webp']),
+  ('training-images',       'training-images',       true, 5242880,  array['image/jpeg', 'image/png', 'image/webp']),
+  ('offer-images',          'offer-images',          true, 5242880,  array['image/jpeg', 'image/png', 'image/webp']),
+  -- logos and favicon (the favicon may be an .ico file)
+  ('site-assets',           'site-assets',           true, 2097152,  array['image/jpeg', 'image/png', 'image/webp', 'image/x-icon'])
+on conflict (id) do update set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+-- Public buckets need no read policy for URL access; only admins may write.
+drop policy if exists "Admins manage site assets" on storage.objects;
+create policy "Admins manage site assets" on storage.objects for all to authenticated
+  using (
+    bucket_id in ('course-thumbnails', 'course-curriculums', 'instructor-images',
+                  'training-images', 'offer-images', 'site-assets')
+    and (select public.is_admin())
+  )
+  with check (
+    bucket_id in ('course-thumbnails', 'course-curriculums', 'instructor-images',
+                  'training-images', 'offer-images', 'site-assets')
+    and (select public.is_admin())
+  );
+
+-- ===========================================================================
+-- 20260924000007_remove_payment_methods.sql
+-- ===========================================================================
+
+-- 7/12 · Remove payment methods (feature dropped)
+-- Only does something on databases created before payment methods were
+-- removed; on a new database every statement below is a no-op.
+-- The old "payment-method-images" storage bucket can't be removed with SQL.
+-- If it exists, delete it in Dashboard → Storage (nothing can upload to it).
+
+drop table if exists public.course_payment_methods, public.payment_methods cascade;
+
+update public.faqs
+set answer = 'We accept eSewa, Khalti, Fonepay and bank transfer. Our team confirms how you will pay after you enroll, and any instalment plan is shown on the course page.'
+where question = 'Which payment methods do you accept?'
+  and answer = 'We accept eSewa, Khalti, Fonepay and bank transfer. The methods available for each course, and any instalment plan, are listed on the course page.';
+
+-- ===========================================================================
+-- 20260924000008_home_stats.sql
+-- ===========================================================================
+
+-- 8/12 · Home page stats ("1,000+ Students trained")
+
+create table if not exists public.home_stats (
+  id uuid primary key default gen_random_uuid(),
+  value text not null,
+  label text not null,
+  display_order integer not null default 0,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+call private.setup_content_table('home_stats');
+
+drop policy if exists "Public reads active home stats" on public.home_stats;
+create policy "Public reads active home stats" on public.home_stats for select
+  using (is_active);
+
+-- ===========================================================================
+-- 20260924000009_about_contact.sql
+-- ===========================================================================
+
+-- 9/12 · About page cards and Contact opening hours
+
+-- Contact page opening hours: [{ "days": "Sunday – Friday", "hours": "9:00 AM – 6:00 PM" }]
+alter table public.site_settings
+  add column if not exists opening_hours jsonb not null default '[]'::jsonb;
+
+alter table public.site_settings drop constraint if exists site_settings_opening_hours_check;
+alter table public.site_settings add constraint site_settings_opening_hours_check
+  check (jsonb_typeof(opening_hours) = 'array');
+
+-- Page copy stays in code (src/data/about.ts, src/data/contact.ts). Remove the
+-- page_content table on databases where an earlier version created it.
+drop table if exists public.page_content;
+
+-- About page cards: values, "why learn with us" features and learning steps.
+-- `icon` picks one of the icons the design provides.
+create table if not exists public.about_items (
+  id uuid primary key default gen_random_uuid(),
+  section text not null check (section in ('value', 'feature', 'learning_step')),
+  icon text not null check (icon in (
+    'guidance', 'inclusive', 'quality', 'growth', 'learn', 'practice', 'build', 'grow',
+    'practical', 'mentor', 'projects', 'certificate', 'flexible', 'curriculum', 'career'
+  )),
+  title text not null,
+  description text not null default '',
+  display_order integer not null default 0,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists about_items_section_idx on public.about_items (section, display_order);
+
+call private.setup_content_table('about_items');
+
+drop policy if exists "Public reads active about items" on public.about_items;
+create policy "Public reads active about items" on public.about_items for select
+  using (is_active);
+
+-- ===========================================================================
+-- 20260924000010_training_pages.sql
+-- ===========================================================================
+
+-- 10/12 · Training pages (corporate / academic / government)
+-- Page copy (hero, why choose us, process, programs, CTA) stays in code:
+-- src/data/training/*. The database holds what changes over time: partners,
+-- which courses each page offers, and organisation testimonials.
+
+-- Courses offered on each training page, e.g. {corporate,academic}.
+alter table public.courses
+  add column if not exists training_types text[] not null default '{}';
+
+alter table public.courses drop constraint if exists courses_training_types_check;
+alter table public.courses add constraint courses_training_types_check
+  check (training_types <@ array['corporate', 'academic', 'government']::text[]);
+
+create index if not exists courses_training_types_idx on public.courses using gin (training_types);
+
+-- Testimonials: student reviews (home page) or organisations (training pages).
+alter table public.testimonials
+  add column if not exists type text not null default 'student',
+  -- Role and organisation, e.g. "HR Manager, Summit Logistics"
+  add column if not exists designation text;
+
+alter table public.testimonials drop constraint if exists testimonials_type_check;
+alter table public.testimonials add constraint testimonials_type_check
+  check (type in ('student', 'corporate', 'academic', 'government'));
+
+-- Partners shown in each training page's logo marquee.
+create table if not exists public.training_partners (
+  id uuid primary key default gen_random_uuid(),
+  type text not null check (type in ('corporate', 'academic', 'government')),
+  name text not null,
+  logo text,
+  website text check (website is null or website ~ '^https://'),
+  display_order integer not null default 0,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists training_partners_type_idx on public.training_partners (type, display_order);
+
+call private.setup_content_table('training_partners');
+
+drop policy if exists "Public reads active training partners" on public.training_partners;
+create policy "Public reads active training partners" on public.training_partners for select
+  using (is_active);
+
+-- ===========================================================================
+-- 20260924000011_training_page_lists.sql
+-- ===========================================================================
+
+-- 11/12 · Training page lists: why-choose-us features, programs, process
+-- steps and images. Headings and paragraphs stay in code (src/data/training/*).
+
+-- `icon` is one of the icons the design provides (components/training/training-icons).
+create table if not exists public.training_page_items (
+  id uuid primary key default gen_random_uuid(),
+  -- null = shown on every training page (used for the shared process steps)
+  type text check (type in ('corporate', 'academic', 'government')),
+  section text not null check (section in ('feature', 'program', 'process_step')),
+  icon text check (icon in (
+    'Award', 'BarChart3', 'BookOpenCheck', 'Bot', 'BriefcaseBusiness', 'Building2',
+    'CalendarClock', 'ChartNoAxesCombined', 'FolderCode', 'GraduationCap', 'Handshake',
+    'Landmark', 'Laptop', 'Presentation', 'Rocket', 'Settings2', 'ShieldCheck', 'Sprout',
+    'Target', 'UsersRound', 'Workflow', 'Wrench'
+  )),
+  title text not null,
+  description text not null default '',
+  display_order integer not null default 0,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  -- Features and programs belong to one page and need an icon; steps are numbered instead.
+  constraint training_page_items_shape check (
+    section = 'process_step' or (type is not null and icon is not null)
+  )
+);
+
+create index if not exists training_page_items_lookup_idx
+  on public.training_page_items (section, type, display_order);
+
+create table if not exists public.training_page_images (
+  id uuid primary key default gen_random_uuid(),
+  type text not null check (type in ('corporate', 'academic', 'government')),
+  -- hero = the hero slider; why_choose_us = the collage (first three are used)
+  placement text not null check (placement in ('hero', 'why_choose_us')),
+  image_url text not null,
+  alt text not null,
+  display_order integer not null default 0,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists training_page_images_lookup_idx
+  on public.training_page_images (type, placement, display_order);
+
+call private.setup_content_table('training_page_items');
+call private.setup_content_table('training_page_images');
+
+drop policy if exists "Public reads active training page items" on public.training_page_items;
+create policy "Public reads active training page items" on public.training_page_items for select
+  using (is_active);
+
+drop policy if exists "Public reads active training page images" on public.training_page_images;
+create policy "Public reads active training page images" on public.training_page_images for select
+  using (is_active);
+
+-- ===========================================================================
+-- 20260924000012_training_page_text.sql
+-- ===========================================================================
+
+-- 12/12 · Training page text: headings, descriptions and button labels for the
+-- corporate / academic / government pages, one row per page. Button links are
+-- set by the site (WhatsApp when a number is configured, otherwise /contact).
+
+create table if not exists public.training_pages (
+  type text primary key check (type in ('corporate', 'academic', 'government')),
+  hero_eyebrow text not null default '',
+  hero_title text not null default '',
+  hero_description text not null default '',
+  hero_cta_label text not null default '',
+  partners_title text not null default '',
+  courses_title text not null default '',
+  courses_description text not null default '',
+  why_title text not null default '',
+  why_description text not null default '',
+  process_title text not null default '',
+  process_description text,
+  programs_title text not null default '',
+  programs_description text not null default '',
+  testimonials_title text not null default '',
+  testimonials_description text not null default '',
+  cta_title text not null default '',
+  cta_description text not null default '',
+  cta_label text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+call private.setup_content_table('training_pages');
+
+drop policy if exists "Public reads training pages" on public.training_pages;
+create policy "Public reads training pages" on public.training_pages for select
+  using (true);
+
+-- ===========================================================================
+-- 20260927000000_site_settings_logo_desc.sql
+-- ===========================================================================
+
+-- Add site_name, logo_url, footer_logo_url, favicon_url and description to site_settings
+alter table public.site_settings
+  add column if not exists site_name text,
+  add column if not exists logo_url text,
+  add column if not exists footer_logo_url text,
+  add column if not exists favicon_url text,
+  add column if not exists description text;
+
+-- ===========================================================================
+-- 20260928000000_course_tools_udemy.sql
+-- ===========================================================================
+
+-- 14/14 · Course "Tools covered" and Udemy bonus courses; courses are no
+-- longer linked to the training pages.
+
+-- ---------------------------------------------------------------------------
+-- Tools covered by a course. `icon` is a key into the icon registry
+-- (src/components/courses/tool-icons.ts); unknown or empty keys show the
+-- tool's initial instead.
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.course_tools (
+  id uuid primary key default gen_random_uuid(),
+  course_id uuid not null references public.courses (id) on delete cascade,
+  name text not null,
+  icon text,
+  description text,
+  display_order integer not null default 0,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists course_tools_course_id_idx on public.course_tools (course_id, display_order);
+
+-- ---------------------------------------------------------------------------
+-- Udemy courses students get free with a course. Content LeafClutch
+-- maintains; nothing is fetched from Udemy.
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.course_udemy_bonus (
+  id uuid primary key default gen_random_uuid(),
+  course_id uuid not null references public.courses (id) on delete cascade,
+  title text not null,
+  description text not null default '',
+  image_url text not null,
+  instructor text not null,
+  rating numeric(2, 1) not null default 0 check (rating between 0 and 5),
+  ratings_count integer not null default 0 check (ratings_count >= 0),
+  -- as Udemy shows it, e.g. "99h 48m"
+  total_hours text not null default '',
+  lectures integer not null default 0 check (lectures >= 0),
+  level text not null default 'All Levels',
+  course_url text not null check (course_url ~ '^https://'),
+  display_order integer not null default 0,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists course_udemy_bonus_course_id_idx on public.course_udemy_bonus (course_id, display_order);
+
+call private.setup_content_table('course_tools');
+call private.setup_content_table('course_udemy_bonus');
+
+-- Visible when active and the course is published.
+drop policy if exists "Public reads tools of published courses" on public.course_tools;
+create policy "Public reads tools of published courses" on public.course_tools for select
+  using (is_active and exists (select 1 from public.courses c where c.id = course_id and c.status = 'published'));
+
+drop policy if exists "Public reads udemy bonus of published courses" on public.course_udemy_bonus;
+create policy "Public reads udemy bonus of published courses" on public.course_udemy_bonus for select
+  using (is_active and exists (select 1 from public.courses c where c.id = course_id and c.status = 'published'));
+
+-- ---------------------------------------------------------------------------
+-- Courses aren't listed on the corporate / academic / government pages: those
+-- pages invite organisations to get in touch instead. Drops the link added in
+-- migration 10 (with its check constraint and index).
+-- ---------------------------------------------------------------------------
+
+alter table public.courses drop column if exists training_types;
+
+-- ===========================================================================
+-- 20260929000000_site_settings_map.sql
+-- ===========================================================================
+
+-- 15/15 · Google Maps on the Contact page. The admin pastes Google Maps'
+-- "Embed a map" link (Share → Embed a map); the site stores only the link.
+
+alter table public.site_settings
+  add column if not exists map_embed_url text;
+
+alter table public.site_settings drop constraint if exists site_settings_map_embed_url_check;
+alter table public.site_settings add constraint site_settings_map_embed_url_check
+  check (map_embed_url is null or map_embed_url ~ '^https://www\.google\.com/maps/embed\?');
+
+-- ===========================================================================
+-- seed.sql
+-- ===========================================================================
+
 -- Seed data generated from the original static files in src/data.
 -- PLACEHOLDER content: instructors, testimonials, contact details and most
 -- course detail copy are placeholders for layout — replace before launch.

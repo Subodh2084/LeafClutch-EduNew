@@ -6,6 +6,8 @@ import { FileText, Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
+import { MAX_IMAGE_BYTES } from "@/lib/storage";
+
 import type { ActionResult } from "./fields";
 
 interface FileUploadProps {
@@ -17,7 +19,7 @@ interface FileUploadProps {
 }
 
 const limits = {
-  image: { accept: "image/jpeg,image/png,image/webp", hint: "JPG, PNG or WebP" },
+  image: { accept: "image/jpeg,image/png,image/webp", hint: "JPG, PNG or WebP, up to 5 MB" },
   pdf: { accept: "application/pdf", hint: "PDF, up to 10 MB" },
 };
 
@@ -40,6 +42,17 @@ export function FileUpload({ label, currentUrl, kind, upload, clear }: FileUploa
 
   function onFile(file: File | undefined) {
     if (!file) return;
+    // Quick checks before uploading; the server checks the real type and size again.
+    if (kind === "image" && file.size > MAX_IMAGE_BYTES) {
+      setError(`This image is ${(file.size / 1024 / 1024).toFixed(1)} MB. The limit is 5 MB — resize or compress it first.`);
+      if (input.current) input.current.value = "";
+      return;
+    }
+    if (kind === "image" && !/^image\/(jpeg|png|webp)$/.test(file.type)) {
+      setError("Upload a JPG, PNG or WebP image.");
+      if (input.current) input.current.value = "";
+      return;
+    }
     const formData = new FormData();
     formData.append("file", file);
     run(() => upload(formData));

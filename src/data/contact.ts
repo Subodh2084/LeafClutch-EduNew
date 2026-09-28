@@ -5,7 +5,7 @@ import type { ContactPageContent } from "@/types/contact";
 export const contactPageContent: ContactPageContent = {
   title: "Contact Us",
   description:
-    "Questions about a course, batch timings or payment? Send us a message on WhatsApp or by email and our team will get back to you.",
+    "Ask us about any course, upcoming batches, fees or instalment plans. Message us on WhatsApp or by email and our team will help you find the right course and answer your questions.",
   formTitle: "Send us a message",
   infoTitle: "Get in touch",
   infoDescription: "Prefer to reach us directly? Use any of these.",

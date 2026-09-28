@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
-import { PartnershipMarquee } from "@/components/training/PartnershipMarquee";
-import { TrainingCourses } from "@/components/training/TrainingCourses";
+import { TrainingContact } from "@/components/training/TrainingContact";
 import { TrainingCTA } from "@/components/training/TrainingCTA";
 import { TrainingHero } from "@/components/training/TrainingHero";
 import { TrainingProcess } from "@/components/training/TrainingProcess";
@@ -17,18 +16,17 @@ export const metadata: Metadata = {
 };
 
 export default async function CorporateTrainingPage() {
-  const { content, partners, courses, testimonials } = await getTrainingPage("corporate");
+  const { content, testimonials, contact } = await getTrainingPage("corporate");
 
   return (
     <main id="main" className="flex-1">
       <TrainingHero hero={content.hero} />
-      <PartnershipMarquee title={content.partnership.title} partners={partners} />
-      <TrainingCourses {...content.courses} courses={courses} />
       <TrainingWhyChooseUs data={content.whyChooseUs} />
       <TrainingProcess data={content.process} />
       <TrainingPrograms data={content.programs} />
       <TrainingTestimonials intro={content.testimonials} testimonials={testimonials} />
       <TrainingCTA data={content.cta} />
+      <TrainingContact type="corporate" info={contact.info} content={contact.content} />
     </main>
   );
 }

@@ -2,35 +2,44 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
+  addCourseUdemyBonusFromLink,
   createCourseBenefit,
   createCourseInstallment,
   createCourseLesson,
   createCourseModule,
+  createCourseTool,
+  createCourseUdemyBonus,
   deleteCourseBenefit,
   deleteCourseInstallment,
   deleteCourseLesson,
   deleteCourseModule,
+  deleteCourseTool,
+  deleteCourseUdemyBonus,
   removeCourseThumbnail,
-  removeCurriculumPdf,
   setCourseInstructors,
   updateCourse,
   updateCourseBenefit,
   updateCourseInstallment,
   updateCourseLesson,
   updateCourseModule,
+  updateCourseTool,
+  updateCourseUdemyBonus,
   uploadCourseThumbnail,
-  uploadCurriculumPdf,
+  uploadCourseUdemyBonusImage,
 } from "@/actions/courses";
 import { DeleteCourseButton } from "@/components/admin/DeleteCourseButton";
 import { EntityForm } from "@/components/admin/EntityForm";
 import { FileUpload } from "@/components/admin/FileUpload";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { ResourceManager } from "@/components/admin/ResourceManager";
+import { UdemyLinkAdder } from "@/components/admin/UdemyLinkAdder";
 import {
   benefitFields,
   courseFields,
+  courseToolFields,
   installmentFields,
   orderedItemFields,
+  udemyBonusFields,
 } from "@/components/admin/field-sets";
 import { getAdminCategories, getAdminCourse, getAdminInstructors } from "@/lib/admin/queries";
 
@@ -60,7 +69,7 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
     value: instructor.id,
     label: `${String(instructor.name)}${instructor.is_active ? "" : " (hidden)"}`,
   }));
-  const { fields, modules, benefits, installments, instructorIds } = course;
+  const { fields, modules, benefits, installments, tools, udemyBonus, instructorIds } = course;
   const name = String(fields.name);
 
   return (
@@ -82,23 +91,17 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
           />
         </Card>
 
-        <Card title="Files">
-          <div className="space-y-5">
-            <FileUpload
-              label="Thumbnail"
-              kind="image"
-              currentUrl={(fields.thumbnail as string | null) ?? null}
-              upload={uploadCourseThumbnail.bind(null, id)}
-              clear={removeCourseThumbnail.bind(null, id)}
-            />
-            <FileUpload
-              label="Curriculum PDF (the Download Course Curriculum button shows only when a PDF is set)"
-              kind="pdf"
-              currentUrl={(fields.curriculum_pdf_url as string | null) ?? null}
-              upload={uploadCurriculumPdf.bind(null, id)}
-              clear={removeCurriculumPdf.bind(null, id)}
-            />
-          </div>
+        <Card
+          title="Thumbnail"
+          description="The curriculum PDF is created automatically from the modules and lessons below."
+        >
+          <FileUpload
+            label="Thumbnail"
+            kind="image"
+            currentUrl={(fields.thumbnail as string | null) ?? null}
+            upload={uploadCourseThumbnail.bind(null, id)}
+            clear={removeCourseThumbnail.bind(null, id)}
+          />
         </Card>
 
         <Card title="Instructors" description="Tick the instructors who teach this course.">
@@ -151,6 +154,36 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
             emptyText="No lessons yet."
           />
         ))}
+
+        <ResourceManager
+          title="Tools covered"
+          rows={tools}
+          fields={courseToolFields}
+          labelKey="name"
+          metaKeys={["description"]}
+          create={createCourseTool.bind(null, id)}
+          update={updateCourseTool}
+          remove={deleteCourseTool}
+          addLabel="Add tool"
+          emptyText="No tools listed."
+        />
+
+        <UdemyLinkAdder add={addCourseUdemyBonusFromLink.bind(null, id)} />
+
+        <ResourceManager
+          title="Free Udemy courses"
+          description="Udemy courses students get free with this course. Shown on the course page and in the curriculum PDF. If reading from a link fails, use Add manually."
+          rows={udemyBonus}
+          fields={udemyBonusFields}
+          labelKey="title"
+          metaKeys={["instructor", "total_hours"]}
+          create={createCourseUdemyBonus.bind(null, id)}
+          update={updateCourseUdemyBonus}
+          remove={deleteCourseUdemyBonus}
+          image={{ key: "image_url", label: "Cover image", upload: uploadCourseUdemyBonusImage }}
+          addLabel="Add manually"
+          emptyText="No Udemy courses."
+        />
 
         <ResourceManager
           title="Instalment plan"

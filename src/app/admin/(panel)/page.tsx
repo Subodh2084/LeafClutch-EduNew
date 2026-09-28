@@ -1,7 +1,6 @@
 import Link from "next/link";
 import {
   BookOpen,
-  GraduationCap,
   HelpCircle,
   MessageSquareQuote,
   Users,
@@ -19,7 +18,6 @@ export default async function AdminDashboard() {
     { href: "/admin/instructors", label: "Instructors", count: counts.instructors, icon: Users },
     { href: "/admin/faqs", label: "FAQs", count: counts.faqs, icon: HelpCircle },
     { href: "/admin/testimonials", label: "Testimonials", count: counts.testimonials, icon: MessageSquareQuote },
-    { href: "/admin/training", label: "Training partners", count: counts.training_partners, icon: GraduationCap },
   ];
 
   return (

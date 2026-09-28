@@ -1,5 +1,4 @@
 import type { Faq } from "@/types/content";
-import type { TrainingType } from "@/types/training";
 
 export type CourseStatus = "draft" | "published" | "archived";
 
@@ -35,8 +34,6 @@ export interface Course {
   certificate_available: boolean;
   is_featured: boolean;
   status: CourseStatus;
-  /** Training pages this course is offered on. Will become a join table. */
-  training_types?: TrainingType[];
   /** "Tools Covered". Loaded with the course detail. */
   tools?: CourseTool[];
   /** Udemy courses students can pick for free after enrolling. Loaded with the course detail. */

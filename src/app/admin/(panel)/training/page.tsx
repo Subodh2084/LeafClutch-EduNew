@@ -14,7 +14,7 @@ export default async function TrainingAdminPage() {
     <>
       <PageHeader
         title="Training pages"
-        description="Partners, features, programs and photos are managed per page. Headings and paragraphs are part of the site's code."
+        description="Features, programs and photos are managed per page. Headings and paragraphs are part of the site's code."
       />
       <ul className="mb-8 grid gap-4 sm:grid-cols-3">
         {trainingTypeOptions.map((type) => (

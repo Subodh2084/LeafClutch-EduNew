@@ -60,8 +60,23 @@ function toMessage(error: unknown): string {
       return "That item no longer exists.";
   }
 
+  // Supabase Storage errors (uploads) carry a message rather than a code.
+  const message = String((error as { message?: unknown })?.message ?? "");
+  if (/row-level security|unauthorized|not authorized/i.test(message)) {
+    return "Uploads are blocked by storage permissions. Run migration 06 (storage) in the Supabase SQL editor.";
+  }
+  if (/bucket not found/i.test(message)) {
+    return "The storage bucket is missing. Run migration 06 (storage) in the Supabase SQL editor.";
+  }
+  if (/exceeded the maximum allowed size|payload too large|too large/i.test(message)) {
+    return "The file is too large. Images can be up to 5 MB.";
+  }
+  if (/mime type|not supported/i.test(message)) {
+    return "This file type isn't allowed. Upload a JPG, PNG or WebP image.";
+  }
+
   console.error("Admin action failed:", error);
-  return "Something went wrong. Please try again.";
+  return message ? `Something went wrong: ${message}` : "Something went wrong. Please try again.";
 }
 
 // ---------------------------------------------------------------------------
