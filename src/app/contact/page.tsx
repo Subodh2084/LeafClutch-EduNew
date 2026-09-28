@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { ContactDetails } from "@/components/contact/ContactDetails";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { ContactHeader } from "@/components/contact/ContactHeader";
+import { ContactMap } from "@/components/contact/ContactMap";
 import { Container } from "@/components/layout/Container";
 import { getContactInfo, getContactPageContent } from "@/lib/content";
 
@@ -25,6 +26,7 @@ export default async function ContactPage() {
         />
         <ContactDetails title={content.infoTitle} description={content.infoDescription} info={info} />
       </Container>
+      {info.map && <ContactMap embedUrl={info.map.embedUrl} openUrl={info.map.openUrl} address={info.address} />}
     </main>
   );
 }

@@ -267,30 +267,6 @@ on conflict do nothing;
 
 -- Training pages ------------------------------------------------------------
 
--- Which courses each training page offers. Only set where still empty.
-update public.courses set training_types = array['corporate', 'government']
-where id = '7516a9d7-d1dd-42c8-8c5f-53cea00ed33c' and training_types = '{}';
-update public.courses set training_types = array['corporate', 'government']
-where id = '20a70350-dffd-40d5-87ad-a61e7360e743' and training_types = '{}';
-update public.courses set training_types = array['academic']
-where id = 'd523ab0a-33e1-4928-8734-3956c6739d04' and training_types = '{}';
-update public.courses set training_types = array['corporate', 'academic']
-where id = 'f42af617-4d01-4006-888b-4d6d6b6052f4' and training_types = '{}';
-update public.courses set training_types = array['academic']
-where id = 'a31d768d-750b-4607-8c8d-6cd1a8b5994b' and training_types = '{}';
-update public.courses set training_types = array['government']
-where id = '8ddf1088-14f1-46d0-827a-17b814c7539f' and training_types = '{}';
-update public.courses set training_types = array['academic']
-where id = 'a626064a-7374-423e-86d6-1f8797f54a7c' and training_types = '{}';
-update public.courses set training_types = array['corporate', 'academic', 'government']
-where id = '85a42f2c-5670-429b-8c72-f5a4e7494af2' and training_types = '{}';
-update public.courses set training_types = array['academic']
-where id = '74b2aa62-017d-4a09-88bc-1c1565e2b715' and training_types = '{}';
-update public.courses set training_types = array['corporate', 'government']
-where id = 'f7b2c938-f077-4b4c-8b37-73eb73e758f3' and training_types = '{}';
-update public.courses set training_types = array['corporate', 'government']
-where id = '420ccfc3-75a4-41cd-868f-69770e2ad8df' and training_types = '{}';
-
 -- PLACEHOLDER organisation testimonials — fictional; replace with real,
 -- consented testimonials before launch.
 insert into public.testimonials (id, type, name, image, course_id, designation, review, rating, is_featured, is_active, display_order) values
@@ -409,4 +385,25 @@ insert into public.training_pages (type, hero_eyebrow, hero_title, hero_descript
   ('corporate', 'Corporate Training', 'Empower Your Team With Industry-Ready Technology Skills', 'Equip your workforce with practical, industry-focused technology training designed around your organization''s goals, challenges, and future needs.', 'Request Corporate Training', 'Trusted by Businesses & Organizations', 'Corporate Courses', 'Proven courses we adapt for teams, from AI and automation to cloud, security and analytics.', 'Training that fits the way your team works', 'We build programs around your tools, your projects and your schedule, so new skills show up in day-to-day work.', 'How we run a corporate program', 'A clear four-step process, from the first conversation to follow-up support.', 'Programs built around your goals', 'Beyond individual courses, we design complete programs for teams and departments.', 'What our corporate clients say', 'Feedback from teams who have trained with LeafClutch.', 'Ready to Upskill Your Team?', 'Let''s build a training program around your organization''s goals.', 'Request Corporate Training'),
   ('academic', 'Academic Training', 'Prepare Students for the Skills and Careers of Tomorrow', 'Help students bridge the gap between academic learning and industry expectations through practical, mentor-led technology training.', 'Partner With Us', 'Our Academic Partners', 'Academic Courses', 'Career-focused courses we run for colleges and schools, from web development to data and design.', 'Learning that connects the classroom to industry', 'We work alongside your faculty to give students practical skills, real projects and a clear view of technology careers.', 'How we work with your institution', 'A clear four-step process, planned around your academic calendar.', 'Programs for students and faculty', 'From single workshops to semester-long programs, we plan the format with your institution.', 'What our academic partners say', 'Feedback from institutions and faculty who have worked with LeafClutch.', 'Let''s Prepare Students for the Future', 'Partner with LeafClutch to bring industry-focused technology learning to your institution.', 'Partner With Us'),
   ('government', 'Government Training', 'Building Digital Skills for a Smarter Public Sector', 'Support digital transformation with practical technology training designed for government teams, institutions, and public-sector initiatives.', 'Request Government Training', 'Supporting Public Sector & Government Initiatives', 'Government Courses', 'Courses we adapt for public institutions, covering data, security, cloud and emerging technology.', 'Capacity building that lasts beyond the training room', 'We design training around institutional needs and public-sector realities, so teams keep applying what they learn.', 'How we run a public-sector program', 'A clear four-step process that fits institutional planning and reporting.', 'Programs for public institutions', 'We plan programs with your department, from awareness sessions to in-depth technical training.', 'What public-sector teams say', 'Feedback from government teams and programs we have trained.', 'Build Digital Capacity for the Future', 'Let''s design practical technology training around your institution''s needs.', 'Request Government Training')
+on conflict do nothing;
+
+-- Tools covered by each course (icon keys: src/components/courses/tool-icons.ts).
+insert into public.course_tools (id, course_id, name, icon, description, display_order) values
+  ('44a7643e-65b0-4dc0-8d7d-1397fab3fbca', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'JavaScript', 'javascript', 'ES6+ and async code', 1),
+  ('96e645f8-0b39-4565-8174-4a07abadefb1', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'React', 'react', 'Components, state and routing', 2),
+  ('1d71d1ff-c227-4461-88e0-ef3c885ee9cd', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'Node.js', 'nodejs', 'Server-side JavaScript', 3),
+  ('0df0c5f7-ee13-4a82-8412-7d35710ef65f', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'Express', 'express', 'REST APIs and middleware', 4),
+  ('00e9af7a-b95e-4f22-80af-f5d912b68209', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'MongoDB', 'mongodb', 'Document database', 5),
+  ('ebe1ec12-e6e9-4864-83ed-1a368f561519', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'Mongoose', 'mongoose', 'Schemas and models', 6),
+  ('42bd8e72-6a5e-458d-8f35-e8d6cc9c2979', 'a626064a-7374-423e-86d6-1f8797f54a7c', 'Python', 'python', 'The language for the whole course', 1),
+  ('90f4f08c-3de8-4ff4-8517-13a74c4890da', 'a626064a-7374-423e-86d6-1f8797f54a7c', 'NumPy', 'numpy', 'Fast numerical arrays', 2),
+  ('f6fb23a8-d504-464e-8934-aef062211314', 'a626064a-7374-423e-86d6-1f8797f54a7c', 'pandas', 'pandas', 'Cleaning and reshaping data', 3),
+  ('8ed9a0dc-fea6-4786-8e91-114dc8fde89e', 'a626064a-7374-423e-86d6-1f8797f54a7c', 'SQL', null, 'Queries and joins', 4),
+  ('665e0947-1f18-4518-8635-2c7437952a16', 'a626064a-7374-423e-86d6-1f8797f54a7c', 'Matplotlib', null, 'Charts and plots', 5),
+  ('985b7bb8-4463-4e49-8773-051491d5e263', 'a626064a-7374-423e-86d6-1f8797f54a7c', 'Seaborn', null, 'Statistical visualisation', 6)
+on conflict do nothing;
+
+-- Udemy courses included free with a course (content LeafClutch maintains).
+insert into public.course_udemy_bonus (id, course_id, title, description, image_url, instructor, rating, ratings_count, total_hours, lectures, level, course_url, display_order) values
+  ('676fd8f2-a0da-48ea-8e60-cf8ce84b2f59', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'Complete web development course', 'Only web development course that you will need. Covers HTML, CSS, Tailwind, Node, React, MongoDB, Prisma, Deployment etc', 'https://img-c.udemycdn.com/course/480x270/6035102_7d1a.jpg', 'Hitesh Choudhary', 4.5, 22660, '99h 48m', 331, 'All Levels', 'https://www.udemy.com/course/web-dev-master/', 1)
 on conflict do nothing;

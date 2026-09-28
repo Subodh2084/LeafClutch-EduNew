@@ -6,6 +6,7 @@ import { aboutData } from "@/data/about";
 import { contactPageContent } from "@/data/contact";
 import { whyChooseUsFeatures, whyChooseUsImages } from "@/data/home";
 import { byDisplayOrder, throwIfError } from "@/lib/data";
+import { contactMap } from "@/lib/maps";
 import { getPublicClient } from "@/lib/supabase/public";
 import type { AboutPageData, AboutValue, LearningStep } from "@/types/about";
 import type { ContactInfo, ContactPageContent } from "@/types/contact";
@@ -133,13 +134,14 @@ export async function getAboutPageData(): Promise<AboutPageData> {
 
 /** Contact details from site_settings, as the Contact page expects them. */
 export async function getContactInfo(): Promise<ContactInfo> {
-  const { address, phone, email, whatsapp, opening_hours } = await getSiteSettings();
+  const { address, phone, email, whatsapp, opening_hours, map_embed_url } = await getSiteSettings();
   return {
     address,
     phone,
     email,
     whatsapp,
     openingHours: opening_hours.map((row, i) => ({ id: String(i), ...row })),
+    map: contactMap(map_embed_url ?? null, address),
   };
 }
 

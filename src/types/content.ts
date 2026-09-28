@@ -68,6 +68,8 @@ export interface SiteSettings {
   /** International format, digits only, no "+". */
   whatsapp: string | null;
   address: string | null;
+  /** Google Maps "Embed a map" link for the Contact page. */
+  map_embed_url?: string | null;
   social_links: SocialLink[];
   /** Shown on the Contact page, e.g. { days: "Sunday – Friday", hours: "9:00 AM – 6:00 PM" }. */
   opening_hours: { days: string; hours: string }[];

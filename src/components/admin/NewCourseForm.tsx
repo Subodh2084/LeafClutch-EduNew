@@ -20,7 +20,6 @@ export function NewCourseForm({ fields }: { fields: FieldDef[] }) {
         status: "draft",
         learning_mode: "online",
         certificate_available: true,
-        training_types: [],
         category_id: defaultCategory,
       }}
       submitLabel="Create course"

@@ -22,7 +22,11 @@ export async function uploadFile(supabase: SupabaseClient, key: BucketKey, file:
   const type = detectFileType(bytes);
   if (!type || !(bucket.types as readonly string[]).includes(type)) {
     throw new UserError(
-      key === "courseCurriculums" ? "Upload a PDF file." : "Upload a JPG, PNG or WebP image.",
+      key === "courseCurriculums"
+        ? "Upload a PDF file."
+        : key === "siteAssets"
+          ? "Upload a JPG, PNG, WebP or ICO image."
+          : "Upload a JPG, PNG or WebP image.",
     );
   }
 

@@ -1,7 +1,7 @@
 import "server-only";
 
 import { Fragment } from "react";
-import { Document, Image, Link, Page, Path, Rect, StyleSheet, Svg, Text, View } from "@react-pdf/renderer";
+import { Document, Image, Page, Path, Rect, StyleSheet, Svg, Text, View } from "@react-pdf/renderer";
 
 import { hasUdemyBonus, learningModeLabels } from "@/lib/course-display";
 import { formatPrice, getCoursePricing } from "@/lib/pricing";
@@ -164,9 +164,7 @@ function UdemyBonusCallout({ courses }: { courses: UdemyBonusCourse[] }) {
         )}
         {courses.map((bonus) => (
           <Text key={bonus.id} style={styles.bonusCourse}>
-            <Link src={bonus.course_url} style={styles.bonusCourseTitle}>
-              {bonus.title}
-            </Link>
+            <Text style={styles.bonusCourseTitle}>{bonus.title}</Text>
             {` — ${bonus.instructor} · ${bonus.total_hours} · ${bonus.lectures} lectures`}
           </Text>
         ))}

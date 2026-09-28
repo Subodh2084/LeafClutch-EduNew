@@ -31,7 +31,7 @@ export async function getAdminCourses() {
   const db = await adminClient();
   const { data, error } = await db
     .from("courses")
-    .select("id, name, slug, status, is_featured, actual_price, discount_price, training_types, category:course_categories(name)")
+    .select("id, name, slug, status, is_featured, actual_price, discount_price, category:course_categories(name)")
     .order("created_at");
   throwIfError(error, "load courses");
   return data as unknown as (Row & {
@@ -41,7 +41,6 @@ export async function getAdminCourses() {
     is_featured: boolean;
     actual_price: number;
     discount_price: number | null;
-    training_types: string[];
     category: { name: string } | null;
   })[];
 }
@@ -56,6 +55,8 @@ export async function getAdminCourse(id: string) {
        benefits:course_benefits(*),
        modules:course_modules(*, lessons:course_lessons(*)),
        installments:course_installments(*),
+       tools:course_tools(*),
+       udemy_bonus:course_udemy_bonus(*),
        course_instructors(instructor_id, display_order)`,
     )
     .eq("id", id)
@@ -65,10 +66,12 @@ export async function getAdminCourse(id: string) {
 
   type Ordered = Row & { display_order: number };
   type Module = Ordered & { lessons: Ordered[] };
-  const { benefits, modules, installments, course_instructors, ...fields } = data as Row & {
+  const { benefits, modules, installments, tools, udemy_bonus, course_instructors, ...fields } = data as Row & {
     benefits: Ordered[];
     modules: Module[];
     installments: Ordered[];
+    tools: Ordered[];
+    udemy_bonus: Ordered[];
     course_instructors: { instructor_id: string; display_order: number }[];
   };
   return {
@@ -77,6 +80,8 @@ export async function getAdminCourse(id: string) {
     benefits: benefits.sort(byDisplayOrder),
     modules: modules.sort(byDisplayOrder).map((module): Module => ({ ...module, lessons: module.lessons.sort(byDisplayOrder) })),
     installments: installments.sort(byDisplayOrder),
+    tools: tools.sort(byDisplayOrder),
+    udemyBonus: udemy_bonus.sort(byDisplayOrder),
     instructorIds: course_instructors.sort(byDisplayOrder).map((link) => link.instructor_id),
   };
 }
@@ -91,13 +96,11 @@ export const getAdminSharedSteps = () =>
   listRows("training_page_items", { filters: { section: "process_step", type: null } });
 
 export async function getAdminTrainingPage(type: TrainingType) {
-  const [partners, items, images] = await Promise.all([
-    listRows("training_partners", { filters: { type } }),
+  const [items, images] = await Promise.all([
     listRows("training_page_items", { filters: { type } }),
     listRows("training_page_images", { filters: { type } }),
   ]);
   return {
-    partners,
     features: items.filter((item) => item.section === "feature"),
     programs: items.filter((item) => item.section === "program"),
     steps: items.filter((item) => item.section === "process_step"),
@@ -134,7 +137,7 @@ export async function getAdminOffers() {
 
 export async function getAdminCounts() {
   const db = await adminClient();
-  const tables = ["courses", "instructors", "faqs", "testimonials", "training_partners"] as const;
+  const tables = ["courses", "instructors", "faqs", "testimonials"] as const;
   const counts = await Promise.all(
     tables.map(async (table) => {
       const { count, error } = await db.from(table).select("id", { count: "exact", head: true });

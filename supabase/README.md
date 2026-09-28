@@ -3,7 +3,7 @@
 ## Setup
 
 1. Create a new Supabase project.
-2. Run the 12 migrations in order, either with `npx supabase db push` or by pasting each file from `migrations/` into the SQL editor:
+2. Run the 15 migrations in order, either with `npx supabase db push` or by pasting each file from `migrations/` into the SQL editor:
 
    | File | Contents |
    | --- | --- |
@@ -19,6 +19,9 @@
    | `…10_training_pages.sql` | training partners, courses per training page, organisation testimonials |
    | `…11_training_page_lists.sql` | training page features, programs, process steps and images |
    | `…12_training_page_text.sql` | training page headings, descriptions and button labels |
+   | `20260927…_site_settings_logo_desc.sql` | site name, logos, favicon and description in site settings |
+   | `20260928…_course_tools_udemy.sql` | course tools, free Udemy courses; no courses on the training pages |
+   | `20260929…_site_settings_map.sql` | Google Maps link for the Contact page |
 
 3. Run `seed.sql`. It loads the content that used to live in `src/data`. Most of it is placeholder copy.
 

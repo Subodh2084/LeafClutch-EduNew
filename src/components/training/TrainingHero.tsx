@@ -37,10 +37,10 @@ export function TrainingHero({ hero }: { hero: TrainingPageData["hero"] }) {
               <ArrowRight data-icon="inline-end" aria-hidden />
             </Link>
             <Link
-              href="#training-courses"
+              href="#contact"
               className="py-2 text-center text-sm font-medium text-navy underline-offset-4 hover:underline"
             >
-              See relevant courses
+              Send us a message
             </Link>
           </div>
         </div>

@@ -22,11 +22,43 @@ export function courseFields(categories: FieldOption[]): FieldDef[] {
     { name: "duration", label: "Duration", type: "text", placeholder: "3 months" },
     { name: "learning_mode", label: "Learning mode", type: "select", options: opts(["online", "Online"], ["physical", "In-person"], ["hybrid", "Hybrid"]) },
     { name: "udemy_url", label: "Udemy link", type: "text", nullable: true, placeholder: "https://www.udemy.com/…", hint: "Shows “Includes a free Udemy course” on the course page" },
-    { name: "training_types", label: "Listed on training pages", type: "multiselect", options: trainingTypeOptions },
     { name: "certificate_available", label: "Certificate included", type: "checkbox" },
     { name: "is_featured", label: "Featured on the home page", type: "checkbox" },
   ];
 }
+
+export const courseToolFields: FieldDef[] = [
+  { name: "name", label: "Tool", type: "text", placeholder: "React" },
+  {
+    name: "icon",
+    label: "Logo",
+    type: "select",
+    nullable: true,
+    hint: "Empty = the tool's first letter",
+    options: [
+      "express", "figma", "javascript", "jupyter", "mongodb", "mongoose", "nodejs",
+      "numpy", "pandas", "postgresql", "python", "react", "scikit-learn",
+    ].map((key) => ({ value: key, label: key })),
+  },
+  { name: "description", label: "Short description", type: "text", nullable: true, wide: true },
+  order,
+  active,
+];
+
+export const udemyBonusFields: FieldDef[] = [
+  { name: "title", label: "Course title", type: "text", wide: true },
+  { name: "course_url", label: "Udemy course link", type: "text", placeholder: "https://www.udemy.com/course/…" },
+  { name: "image_url", label: "Cover image link", type: "text", hint: "Udemy's image link, or leave empty and upload one" },
+  { name: "instructor", label: "Udemy instructor", type: "text" },
+  { name: "level", label: "Level", type: "text", placeholder: "All Levels" },
+  { name: "rating", label: "Rating (0–5)", type: "number" },
+  { name: "ratings_count", label: "Number of ratings", type: "number" },
+  { name: "total_hours", label: "Total length", type: "text", placeholder: "99h 48m" },
+  { name: "lectures", label: "Lectures", type: "number" },
+  { name: "description", label: "Description", type: "textarea" },
+  order,
+  active,
+];
 
 export const benefitFields: FieldDef[] = [
   { name: "title", label: "Title", type: "text" },
@@ -148,13 +180,6 @@ export const processStepFields: FieldDef[] = [
   active,
 ];
 
-export const partnerFields: FieldDef[] = [
-  { name: "name", label: "Name", type: "text" },
-  { name: "website", label: "Website", type: "text", nullable: true, placeholder: "https://…" },
-  order,
-  active,
-];
-
 export const trainingImageFields: FieldDef[] = [
   { name: "alt", label: "Image description (for screen readers)", type: "text", wide: true },
   { name: "placement", label: "Where it shows", type: "select", options: opts(["hero", "Hero slider"], ["why_choose_us", "Why-choose-us collage (first 3)"]) },
@@ -172,6 +197,13 @@ export const siteSettingsFields: FieldDef[] = [
   { name: "phone", label: "Phone", type: "text", nullable: true },
   { name: "whatsapp", label: "WhatsApp number", type: "text", nullable: true, hint: "Digits only with country code, e.g. 9779800000000" },
   { name: "address", label: "Address", type: "text", nullable: true },
+  {
+    name: "map_embed_url",
+    label: "Google Maps (Contact page)",
+    type: "textarea",
+    nullable: true,
+    hint: "In Google Maps, find your office → Share → Embed a map → Copy HTML, and paste it here. Leave empty to show a map of the address.",
+  },
   {
     name: "opening_hours",
     label: "Opening hours",
