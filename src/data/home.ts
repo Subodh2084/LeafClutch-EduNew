@@ -17,13 +17,13 @@ export const whyChooseUsFeatures: Feature[] = [
     id: "certification",
     icon: "certificate",
     title: "Industry certification",
-    description: "Earn a LeafClutch certificate that shows what you can actually do.",
+    description: "Earn a Leafclutch certificate that shows what you can actually do.",
   },
   {
     id: "flexible",
     icon: "flexible",
-    title: "Flexible learning",
-    description: "Choose online, in-person or hybrid classes to fit your schedule.",
+    title: "Free Udemy course & flexible learning",
+    description: "Choose a Udemy course that fits your program and keep it forever. Learn at your own pace, on your own schedule.",
   },
   {
     id: "curriculum",
@@ -39,7 +39,7 @@ export const whyChooseUsFeatures: Feature[] = [
   },
 ];
 
-// Placeholder photography, CC0 via Openverse. Replace with real LeafClutch
+// Placeholder photography, CC0 via Openverse. Replace with real Leafclutch
 // classroom photos. Sources:
 //   why-focused-learning.jpg  https://cdn.stocksnap.io/img-thumbs/960w/0E0M5W9O3V.jpg
 //   why-learning-together.jpg https://live.staticflickr.com/718/32851415932_5b1b685b66_b.jpg

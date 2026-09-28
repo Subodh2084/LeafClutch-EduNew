@@ -45,7 +45,7 @@ export interface CourseTool {
 }
 
 /**
- * A Udemy course offered free with enrollment. This is content LeafClutch
+ * A Udemy course offered free with enrollment. This is content Leafclutch
  * maintains (later in Supabase); it is never fetched or scraped from Udemy.
  */
 export interface UdemyBonusCourse {

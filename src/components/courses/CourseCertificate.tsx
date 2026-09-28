@@ -17,7 +17,7 @@ export async function CourseCertificate({
 
   const settings = await getSiteSettings();
   const displayLogo = logoUrl ?? settings.logo_url;
-  const companyName = settings.site_name || "LeafClutch";
+  const companyName = settings.site_name || "Leafclutch";
 
   return (
     <section
@@ -60,7 +60,7 @@ export async function CourseCertificate({
           <p className="mt-2 text-sm font-semibold text-navy">{course.name}</p>
           <div className="mx-auto mt-4 h-px w-16 bg-border" />
           <p className="mt-1.5 text-[0.625rem] text-muted-foreground">
-            {settings.site_name || "LeafClutch Technologies"}
+            {settings.site_name || "Leafclutch Technologies"}
           </p>
         </div>
       </div>

@@ -49,7 +49,7 @@ export function UdemyBonusSection({ courseName, courses }: UdemyBonusSectionProp
 
       <p className="mt-4 flex gap-2 text-sm text-muted-foreground">
         <Info aria-hidden className="mt-0.5 size-4 shrink-0" />
-        Udemy is a separate platform. Course access is arranged by LeafClutch Academy after your
+        Udemy is a separate platform. Course access is arranged by Leafclutch Academy after your
         enrollment is confirmed.
       </p>
     </CourseDetailSection>

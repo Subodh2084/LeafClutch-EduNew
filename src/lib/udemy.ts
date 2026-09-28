@@ -61,7 +61,7 @@ export async function fetchUdemyCourse(url: string): Promise<UdemyCourseDetails>
     response = await fetch(api, {
       cache: "no-store",
       signal: AbortSignal.timeout(10_000),
-      headers: { Accept: "application/json", "User-Agent": "Mozilla/5.0 (compatible; LeafClutch admin)" },
+      headers: { Accept: "application/json", "User-Agent": "Mozilla/5.0 (compatible; Leafclutch admin)" },
     });
   } catch {
     throw new UserError("Couldn't reach Udemy. Try again, or add the course manually.");

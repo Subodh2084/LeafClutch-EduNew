@@ -5,7 +5,7 @@ import { AdminNav } from "@/components/admin/AdminNav";
 import { getAdminEmail } from "@/lib/admin/auth";
 
 export const metadata: Metadata = {
-  title: { default: "Admin", template: "%s | LeafClutch admin" },
+  title: { default: "Admin", template: "%s | Leafclutch admin" },
   robots: { index: false },
 };
 

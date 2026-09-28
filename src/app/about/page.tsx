@@ -14,7 +14,7 @@ import { getInstructors } from "@/lib/courses";
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "LeafClutch Technologies is a technology training institute in Nepal offering practical, project-based courses taught by working professionals.",
+    "Leafclutch Technologies is a technology training institute in Nepal offering practical, project-based courses taught by working professionals.",
 };
 
 export default async function AboutPage() {

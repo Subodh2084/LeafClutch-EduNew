@@ -185,7 +185,7 @@ export const siteSettingsFields: FieldDef[] = [
     placeholder: "Due to Dashain, all physical classes are cancelled until further notice.",
     hint: "Shown in a bar at the top of every page. Up to 200 characters. Leave empty to hide the bar.",
   },
-  { name: "site_name", label: "Site Name", type: "text", nullable: true, placeholder: "LeafClutch Technologies" },
+  { name: "site_name", label: "Site Name", type: "text", nullable: true, placeholder: "Leafclutch Technologies" },
   { name: "logo_url", label: "Header Logo Image", type: "file", nullable: true, hint: "Upload image file or paste URL" },
   { name: "footer_logo_url", label: "Footer Logo Image (Optional)", type: "file", nullable: true, hint: "Upload image file or paste URL. Defaults to Header Logo if empty" },
   { name: "favicon_url", label: "Favicon Icon", type: "file", nullable: true, hint: "Upload icon (.ico, .png, .svg) or paste URL" },

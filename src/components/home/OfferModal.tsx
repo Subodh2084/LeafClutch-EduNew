@@ -48,7 +48,7 @@ export function OfferModal({
 
   const whatsappUrl = whatsappNumber
     ? `https://wa.me/${whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent(
-      `Hi LeafClutch, I'm interested in the offer: ${offer.title}`,
+      `Hi Leafclutch, I'm interested in the offer: ${offer.title}`,
     )}`
     : null;
 

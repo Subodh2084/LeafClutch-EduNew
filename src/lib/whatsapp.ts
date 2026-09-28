@@ -29,7 +29,7 @@ export function buildWhatsAppUrl(number: string | null, text?: string): string |
 export function buildTrainingInquiryMessage(type: TrainingType, programTitle?: string): string {
   const { label, audience } = trainingLabels[type];
   const lines = [
-    "Hello LeafClutch,",
+    "Hello Leafclutch,",
     "",
     `I would like to request ${label.toLowerCase()}${programTitle ? ` for: ${programTitle}` : ""}.`,
     "",

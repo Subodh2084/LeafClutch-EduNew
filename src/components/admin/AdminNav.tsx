@@ -37,7 +37,7 @@ export function AdminNav({ email }: { email: string }) {
     <aside className="border-b bg-navy-deep text-white/80 lg:sticky lg:top-0 lg:h-screen lg:w-60 lg:shrink-0 lg:border-r lg:border-b-0">
       <div className="flex h-full flex-col px-4 py-5">
         <Link href="/admin" className="px-2 text-lg font-semibold text-white">
-          LeafClutch admin
+          Leafclutch admin
         </Link>
         <nav aria-label="Admin" className="mt-5 flex gap-1 overflow-x-auto lg:flex-col">
           {sections.map((section) => (

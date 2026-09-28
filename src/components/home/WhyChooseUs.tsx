@@ -72,7 +72,7 @@ export function WhyChooseUs({ features, images }: WhyChooseUsProps) {
         <div>
           <SectionHeading
             id="why-heading"
-            eyebrow="Why LeafClutch"
+            eyebrow="Why Leafclutch"
             title="Learning built around real work"
             description="We teach the way the industry works: small groups, practical projects and mentors who have shipped what they teach."
           />

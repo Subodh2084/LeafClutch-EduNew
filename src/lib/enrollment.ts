@@ -15,7 +15,7 @@ export interface EnrollmentRequest extends EnrollmentFormValues {
 
 export function buildEnrollmentMessage(request: EnrollmentRequest): string {
   const lines = [
-    "Hello LeafClutch,",
+    "Hello Leafclutch,",
     "",
     "I would like to enroll in:",
     "",

@@ -39,7 +39,7 @@ export function HeroStats({ stats, variant = "band", className }: HeroStatsProps
   const isPanel = variant === "panel";
 
   const list = (
-    <ul aria-label={isPanel ? "LeafClutch in numbers" : undefined} className={cn("grid grid-cols-2", !isPanel && "lg:grid-cols-4")}>
+    <ul aria-label={isPanel ? "Leafclutch in numbers" : undefined} className={cn("grid grid-cols-2", !isPanel && "lg:grid-cols-4")}>
       {stats.map((stat, i) => {
         const Icon = statIcons[i % statIcons.length];
 
@@ -94,7 +94,7 @@ export function HeroStats({ stats, variant = "band", className }: HeroStatsProps
 
   return (
     <section
-      aria-label="LeafClutch in numbers"
+      aria-label="Leafclutch in numbers"
       className={cn("relative z-[1] overflow-hidden bg-navy", className)}
     >
       {glow}

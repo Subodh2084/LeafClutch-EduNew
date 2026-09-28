@@ -12,7 +12,7 @@ export type ContactChannels = Pick<ContactInfo, "whatsapp" | "email">;
 
 export function buildContactMessage(values: ContactFormValues): string {
   const lines = [
-    "Hello LeafClutch,",
+    "Hello Leafclutch,",
     "",
     values.message,
     "",
