@@ -22,8 +22,8 @@ export const whyChooseUsFeatures: Feature[] = [
   {
     id: "flexible",
     icon: "flexible",
-    title: "Flexible learning",
-    description: "Choose online, in-person or hybrid classes to fit your schedule.",
+    title: "Free Udemy course & flexible learning",
+    description: "Choose a Udemy course that fits your program and keep it forever. Learn at your own pace, on your own schedule.",
   },
   {
     id: "curriculum",
