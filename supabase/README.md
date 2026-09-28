@@ -3,7 +3,9 @@
 ## Setup
 
 1. Create a new Supabase project.
-2. Run the 15 migrations in order, either with `npx supabase db push` or by pasting each file from `migrations/` into the SQL editor:
+2. **Easiest:** paste `setup.sql` into the SQL editor and click Run. It contains every migration below plus the seed, in order, and is safe to run again at any time (after pulling changes, just run it again). Regenerate it with `npm run db:bundle` after changing a migration or the seed.
+
+   Or run the migrations one by one, in order, with `npx supabase db push` or the SQL editor:
 
    | File | Contents |
    | --- | --- |
@@ -25,7 +27,7 @@
 
 3. Run `seed.sql`. It loads the content that used to live in `src/data`. Most of it is placeholder copy.
 
-   Migrations and seed are safe to run again, on a new or an existing database. The seed only adds missing rows, so it never overwrites edits made in Supabase.
+   Migrations and seed are safe to run again, on a new or an existing database. Each part of the seed runs only once per database (tracked in `private.seed_log`), so rows you edit or delete are never brought back or overwritten.
 4. Copy `.env.example` to `.env.local` and fill in the URL and anon key.
 5. Create the admin: add a user under Authentication → Users, then run `select public.promote_to_admin('you@example.com');` in the SQL editor.
 
