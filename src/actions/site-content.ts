@@ -27,7 +27,7 @@ export async function updateSiteSettings(values: SiteSettingsInput, files?: Reco
     const updates: Record<string, string | null> = {};
     for (const [key, file] of Object.entries(fileMap)) {
       if (file && file instanceof File && file.size > 0) {
-        updates[key] = await uploadFile(db, "courseThumbnails", file);
+        updates[key] = await uploadFile(db, "siteAssets", file);
       }
     }
 

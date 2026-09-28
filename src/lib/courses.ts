@@ -14,9 +14,10 @@ import type {
   CourseLesson,
   CourseModule,
   CourseNavGroup,
+  CourseTool,
   Instructor,
+  UdemyBonusCourse,
 } from "@/types/course";
-import type { TrainingType } from "@/types/training";
 
 // Public course data. Pages call these and pass the results to components as
 // props. RLS guarantees only published courses (and their content) come back.
@@ -38,11 +39,6 @@ export async function getFeaturedCourses(): Promise<Course[]> {
   return (await getPublishedCourses()).filter((course) => course.is_featured);
 }
 
-
-/** Published courses offered on a training page (corporate, academic, government). */
-export async function getCoursesForTraining(type: TrainingType): Promise<Course[]> {
-  return (await getPublishedCourses()).filter((course) => course.training_types?.includes(type));
-}
 
 /** Categories that have at least one published course, in display order. */
 export async function getCourseCategories(): Promise<CourseCategory[]> {
@@ -94,7 +90,9 @@ const COURSE_DETAIL = `
   modules:course_modules(*, lessons:course_lessons(*)),
   installments:course_installments(*),
   course_instructors(display_order, instructor:instructors(*)),
-  faqs(*)
+  faqs(*),
+  tools:course_tools(id, name, description, display_order),
+  udemy_bonus_courses:course_udemy_bonus(*)
 `;
 
 interface CourseDetailRow extends Course {
@@ -104,6 +102,8 @@ interface CourseDetailRow extends Course {
   // Inactive instructors are hidden by RLS and arrive as null.
   course_instructors: { display_order: number; instructor: Instructor | null }[];
   faqs: Faq[];
+  tools: (CourseTool & { display_order: number })[];
+  udemy_bonus_courses: (UdemyBonusCourse & { display_order: number })[];
 }
 
 /** A published course with everything its detail page shows, or null. */
@@ -121,6 +121,13 @@ export const getCourseBySlug = cache(async (slug: string): Promise<CourseDetail 
 
   return {
     ...row,
+    // Hidden tools / bonus courses are filtered out by RLS.
+    tools: row.tools.sort(byDisplayOrder).map(({ id, name, description }) => ({ id, name, description })),
+    // A bonus course without a cover image isn't shown (the card needs one).
+    udemy_bonus_courses: row.udemy_bonus_courses
+      .filter((bonus) => bonus.image_url)
+      .sort(byDisplayOrder)
+      .map((bonus) => ({ ...bonus, rating: Number(bonus.rating) })),
     benefits: row.benefits.sort(byDisplayOrder),
     modules: row.modules
       .sort(byDisplayOrder)

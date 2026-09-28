@@ -1,5 +1,4 @@
 import type { Faq } from "@/types/content";
-import type { TrainingType } from "@/types/training";
 
 export type CourseStatus = "draft" | "published" | "archived";
 
@@ -30,12 +29,38 @@ export interface Course {
   duration: string;
   learning_mode: LearningMode;
   curriculum_pdf_url: string | null;
-  udemy_url: string | null;
   certificate_available: boolean;
   is_featured: boolean;
   status: CourseStatus;
-  /** Training pages this course is offered on. Will become a join table. */
-  training_types?: TrainingType[];
+  /** "Tools Covered". Loaded with the course detail. */
+  tools?: CourseTool[];
+  /** Udemy courses students can pick for free after enrolling. Loaded with the course detail. */
+  udemy_bonus_courses?: UdemyBonusCourse[];
+}
+
+export interface CourseTool {
+  id: string;
+  name: string;
+  description?: string | null;
+}
+
+/**
+ * A Udemy course offered free with enrollment. This is content LeafClutch
+ * maintains (later in Supabase); it is never fetched or scraped from Udemy.
+ */
+export interface UdemyBonusCourse {
+  id: string;
+  title: string;
+  description: string;
+  image_url: string;
+  instructor: string;
+  rating: number;
+  ratings_count: number;
+  /** As Udemy displays it, e.g. "99h 48m". */
+  total_hours: string;
+  lectures: number;
+  level: string;
+  course_url: string;
 }
 
 export interface CourseBenefit {
@@ -103,6 +128,8 @@ export type CourseRecord = Omit<Course, "category">;
 
 /** Everything the /courses/[slug] page needs, loaded in one query. */
 export interface CourseDetail extends Course {
+  tools: CourseTool[];
+  udemy_bonus_courses: UdemyBonusCourse[];
   benefits: CourseBenefit[];
   modules: CourseModuleWithLessons[];
   instructors: Instructor[];

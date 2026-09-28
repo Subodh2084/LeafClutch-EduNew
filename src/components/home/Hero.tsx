@@ -110,7 +110,7 @@ export function Hero({ courses, featuredCourses }: HeroProps) {
   return (
     <section
       aria-labelledby="hero-heading"
-      className="hero-section relative overflow-hidden border-b"
+      className="hero-section relative z-30 border-b"
     >
       {/* Subtle technical grid */}
       <div aria-hidden className="hero-grid pointer-events-none absolute inset-0" />
@@ -146,9 +146,9 @@ export function Hero({ courses, featuredCourses }: HeroProps) {
         ))}
       </div>
 
-      <Container className="relative grid grid-cols-1 items-center gap-12 py-14 sm:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)] lg:gap-16 lg:py-24">
+      <Container className="relative z-30 grid grid-cols-1 items-center gap-12 py-14 sm:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)] lg:gap-16 lg:py-24">
         {/* Hero content */}
-        <div>
+        <div className="relative z-30">
           <p className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-white/85 px-3 py-1 text-sm font-medium text-navy-soft shadow-sm backdrop-blur-sm">
             <span
               aria-hidden

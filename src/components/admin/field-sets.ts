@@ -21,12 +21,32 @@ export function courseFields(categories: FieldOption[]): FieldDef[] {
     { name: "discount_price", label: "Discount price (Rs.)", type: "number", nullable: true, hint: "Leave empty for no discount" },
     { name: "duration", label: "Duration", type: "text", placeholder: "3 months" },
     { name: "learning_mode", label: "Learning mode", type: "select", options: opts(["online", "Online"], ["physical", "In-person"], ["hybrid", "Hybrid"]) },
-    { name: "udemy_url", label: "Udemy link", type: "text", nullable: true, placeholder: "https://www.udemy.com/…" },
-    { name: "training_types", label: "Listed on training pages", type: "multiselect", options: trainingTypeOptions },
     { name: "certificate_available", label: "Certificate included", type: "checkbox" },
     { name: "is_featured", label: "Featured on the home page", type: "checkbox" },
   ];
 }
+
+export const courseToolFields: FieldDef[] = [
+  { name: "name", label: "Tool", type: "text", placeholder: "React" },
+  { name: "description", label: "Short description", type: "text", nullable: true, wide: true },
+  order,
+  active,
+];
+
+export const udemyBonusFields: FieldDef[] = [
+  { name: "title", label: "Course title", type: "text", wide: true },
+  { name: "course_url", label: "Udemy course link", type: "text", placeholder: "https://www.udemy.com/course/…" },
+  { name: "image_url", label: "Cover image link", type: "text", hint: "Udemy's image link, or leave empty and upload one" },
+  { name: "instructor", label: "Udemy instructor", type: "text" },
+  { name: "level", label: "Level", type: "text", placeholder: "All Levels" },
+  { name: "rating", label: "Rating (0–5)", type: "number" },
+  { name: "ratings_count", label: "Number of ratings", type: "number" },
+  { name: "total_hours", label: "Total length", type: "text", placeholder: "99h 48m" },
+  { name: "lectures", label: "Lectures", type: "number" },
+  { name: "description", label: "Description", type: "textarea" },
+  order,
+  active,
+];
 
 export const benefitFields: FieldDef[] = [
   { name: "title", label: "Title", type: "text" },
@@ -148,13 +168,6 @@ export const processStepFields: FieldDef[] = [
   active,
 ];
 
-export const partnerFields: FieldDef[] = [
-  { name: "name", label: "Name", type: "text" },
-  { name: "website", label: "Website", type: "text", nullable: true, placeholder: "https://…" },
-  order,
-  active,
-];
-
 export const trainingImageFields: FieldDef[] = [
   { name: "alt", label: "Image description (for screen readers)", type: "text", wide: true },
   { name: "placement", label: "Where it shows", type: "select", options: opts(["hero", "Hero slider"], ["why_choose_us", "Why-choose-us collage (first 3)"]) },
@@ -163,6 +176,15 @@ export const trainingImageFields: FieldDef[] = [
 ];
 
 export const siteSettingsFields: FieldDef[] = [
+  {
+    name: "announcement",
+    label: "Announcement",
+    type: "textarea",
+    nullable: true,
+    wide: true,
+    placeholder: "Due to Dashain, all physical classes are cancelled until further notice.",
+    hint: "Shown in a bar at the top of every page. Up to 200 characters. Leave empty to hide the bar.",
+  },
   { name: "site_name", label: "Site Name", type: "text", nullable: true, placeholder: "LeafClutch Technologies" },
   { name: "logo_url", label: "Header Logo Image", type: "file", nullable: true, hint: "Upload image file or paste URL" },
   { name: "footer_logo_url", label: "Footer Logo Image (Optional)", type: "file", nullable: true, hint: "Upload image file or paste URL. Defaults to Header Logo if empty" },
@@ -172,6 +194,13 @@ export const siteSettingsFields: FieldDef[] = [
   { name: "phone", label: "Phone", type: "text", nullable: true },
   { name: "whatsapp", label: "WhatsApp number", type: "text", nullable: true, hint: "Digits only with country code, e.g. 9779800000000" },
   { name: "address", label: "Address", type: "text", nullable: true },
+  {
+    name: "map_embed_url",
+    label: "Google Maps (Contact page)",
+    type: "textarea",
+    nullable: true,
+    hint: "In Google Maps, find your office → Share → Embed a map → Copy HTML, and paste it here. Leave empty to show a map of the address.",
+  },
   {
     name: "opening_hours",
     label: "Opening hours",

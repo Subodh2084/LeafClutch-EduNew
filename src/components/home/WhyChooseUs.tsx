@@ -17,13 +17,13 @@ interface WhyChooseUsProps {
 /** Decorative code window using the palette's window-chrome colours. */
 function CodeWindow() {
   return (
-    <div aria-hidden className="rounded-xl bg-navy-deep p-4 shadow-card-hover">
+    <div aria-hidden className="flex h-full flex-col justify-between rounded-xl bg-navy-deep p-3 sm:p-4 shadow-card-hover">
       <div className="flex gap-1.5">
-        <span className="size-2.5 rounded-full bg-window-red" />
-        <span className="size-2.5 rounded-full bg-window-yellow" />
-        <span className="size-2.5 rounded-full bg-window-green" />
+        <span className="size-2 sm:size-2.5 rounded-full bg-window-red" />
+        <span className="size-2 sm:size-2.5 rounded-full bg-window-yellow" />
+        <span className="size-2 sm:size-2.5 rounded-full bg-window-green" />
       </div>
-      <pre className="mt-4 overflow-hidden font-mono text-[11px] leading-5 text-white/75">
+      <pre className="mt-2.5 overflow-hidden font-mono text-[9.5px] xs:text-[10px] leading-4 sm:mt-4 sm:text-[11px] sm:leading-5 text-white/75">
         <code>
           <span className="text-sky">const</span> project = <span className="text-teal">build</span>({"{"}
           {"\n  "}skills: [<span className="text-blue-light">&quot;react&quot;</span>,{" "}
@@ -42,27 +42,27 @@ export function WhyChooseUs({ features, images }: WhyChooseUsProps) {
   return (
     <section aria-labelledby="why-heading" className="border-y bg-surface-blue/50 py-16 sm:py-24">
       <Container className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
-        {/* Editorial image composition: one tall image, a code window and a smaller image. */}
-        <div className="grid h-95 grid-cols-[3fr_2fr] gap-4 sm:h-130">
-          <div className="relative overflow-hidden rounded-2xl bg-surface-gray">
+        {/* Editorial image composition: primary image, code window and secondary image. */}
+        <div className="grid grid-cols-1 gap-3.5 sm:h-130 sm:grid-cols-[3fr_2fr] sm:gap-4">
+          <div className="relative h-48 xs:h-56 sm:h-full overflow-hidden rounded-2xl bg-surface-gray">
             <Image
               src={images.primary.src}
               alt={images.primary.alt}
               fill
-              sizes="(min-width: 1024px) 340px, 60vw"
+              sizes="(min-width: 1024px) 340px, (min-width: 640px) 60vw, 100vw"
               className="object-cover"
             />
           </div>
-          <div className="flex flex-col gap-4">
-            <div className="hidden sm:block">
+          <div className="grid grid-cols-2 gap-3.5 sm:flex sm:flex-col sm:gap-4">
+            <div className="flex-1">
               <CodeWindow />
             </div>
-            <div className="relative flex-1 overflow-hidden rounded-2xl bg-surface-gray">
+            <div className="relative min-h-[130px] flex-1 overflow-hidden rounded-2xl bg-surface-gray sm:min-h-0">
               <Image
                 src={images.secondary.src}
                 alt={images.secondary.alt}
                 fill
-                sizes="(min-width: 1024px) 230px, 40vw"
+                sizes="(min-width: 1024px) 230px, 50vw"
                 className="object-cover"
               />
             </div>

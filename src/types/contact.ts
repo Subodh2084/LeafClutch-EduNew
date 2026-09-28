@@ -12,6 +12,8 @@ export interface ContactInfo {
   /** International format, digits only, no "+". */
   whatsapp: string | null;
   openingHours: OpeningHours[];
+  /** The Contact page map, or null when neither a map nor an address is set. */
+  map: { embedUrl: string; openUrl: string } | null;
 }
 
 export interface ContactPageContent {

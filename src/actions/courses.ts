@@ -17,13 +17,18 @@ import {
   courseInstructorIdsSchema,
   courseSchema,
   courseStatusSchema,
+  courseToolSchema,
+  courseUdemyBonusSchema,
   idSchema,
   orderedItemSchema,
   type CourseBenefitInput,
   type CourseInput,
   type CourseInstallmentInput,
+  type CourseToolInput,
+  type CourseUdemyBonusInput,
   type OrderedItemInput,
 } from "@/lib/validation/admin";
+import { fetchUdemyCourse } from "@/lib/udemy";
 import type { CourseStatus } from "@/types/course";
 
 // Admin actions for courses and everything on the course detail page.
@@ -71,24 +76,6 @@ export async function uploadCourseThumbnail(id: string, formData: FormData) {
 export async function removeCourseThumbnail(id: string) {
   return runAdminAction(idSchema, id, (courseId, db) =>
     clearFileColumn(db, { table: "courses", id: courseId, column: "thumbnail" }),
-  );
-}
-
-/** Uploads or replaces the curriculum PDF (PDF only, max 10 MB). */
-export async function uploadCurriculumPdf(id: string, formData: FormData) {
-  return runAdminAction(idSchema, id, (courseId, db) =>
-    replaceFileColumn(
-      db,
-      { table: "courses", id: courseId, column: "curriculum_pdf_url" },
-      "courseCurriculums",
-      formData.get("file"),
-    ),
-  );
-}
-
-export async function removeCurriculumPdf(id: string) {
-  return runAdminAction(idSchema, id, (courseId, db) =>
-    clearFileColumn(db, { table: "courses", id: courseId, column: "curriculum_pdf_url" }),
   );
 }
 
@@ -161,6 +148,71 @@ export async function updateCourseInstallment(id: string, values: CourseInstallm
 
 export async function deleteCourseInstallment(id: string) {
   return runAdminAction(idSchema, id, (rowId, db) => deleteRow(db, "course_installments", rowId));
+}
+
+// --- Tools covered ----------------------------------------------------------
+
+export async function createCourseTool(courseId: string, values: CourseToolInput) {
+  return runAdminAction(withId(courseToolSchema), { id: courseId, values }, (v, db) =>
+    insertRow(db, "course_tools", { ...v.values, course_id: v.id }),
+  );
+}
+
+export async function updateCourseTool(id: string, values: CourseToolInput) {
+  return runAdminAction(withId(courseToolSchema), { id, values }, (v, db) => updateRow(db, "course_tools", v.id, v.values));
+}
+
+export async function deleteCourseTool(id: string) {
+  return runAdminAction(idSchema, id, (rowId, db) => deleteRow(db, "course_tools", rowId));
+}
+
+// --- Udemy bonus courses ---------------------------------------------------
+
+export async function createCourseUdemyBonus(courseId: string, values: CourseUdemyBonusInput) {
+  return runAdminAction(withId(courseUdemyBonusSchema), { id: courseId, values }, (v, db) =>
+    insertRow(db, "course_udemy_bonus", { ...v.values, course_id: v.id }),
+  );
+}
+
+export async function updateCourseUdemyBonus(id: string, values: CourseUdemyBonusInput) {
+  return runAdminAction(withId(courseUdemyBonusSchema), { id, values }, (v, db) =>
+    updateRow(db, "course_udemy_bonus", v.id, v.values),
+  );
+}
+
+export async function deleteCourseUdemyBonus(id: string) {
+  return runAdminAction(idSchema, id, async (rowId, db) => {
+    const image = await readColumn(db, "course_udemy_bonus", rowId, "image_url");
+    const deleted = await deleteRow(db, "course_udemy_bonus", rowId);
+    await removeFile(db, image);
+    return deleted;
+  });
+}
+
+/**
+ * Adds a Udemy course from its link: title, cover, instructor, rating, length,
+ * lectures and level are read from Udemy. Everything stays editable afterwards.
+ */
+export async function addCourseUdemyBonusFromLink(courseId: string, url: string) {
+  return runAdminAction(
+    z.object({ id: idSchema, url: z.string().trim().min(1, "Paste a Udemy course link") }),
+    { id: courseId, url },
+    async (v, db) => {
+      const details = await fetchUdemyCourse(v.url);
+      const { count } = await db
+        .from("course_udemy_bonus")
+        .select("id", { count: "exact", head: true })
+        .eq("course_id", v.id);
+      return insertRow(db, "course_udemy_bonus", { ...details, course_id: v.id, display_order: (count ?? 0) + 1 });
+    },
+  );
+}
+
+/** Uploads a cover image instead of linking Udemy's. */
+export async function uploadCourseUdemyBonusImage(id: string, formData: FormData) {
+  return runAdminAction(idSchema, id, (rowId, db) =>
+    replaceFileColumn(db, { table: "course_udemy_bonus", id: rowId, column: "image_url" }, "courseThumbnails", formData.get("file")),
+  );
 }
 
 // --- Assignments ------------------------------------------------------------

@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { extractGoogleMapsEmbedUrl } from "@/lib/maps";
+
 // Admin form schemas. Use them with react-hook-form's zodResolver on the client;
 // the server actions (src/actions) validate with the same schemas again.
 // File fields (thumbnails, PDFs, images) are not here: they are set only
@@ -75,17 +77,42 @@ export const courseSchema = z
     discount_price: price.nullable(),
     duration: requiredText("Duration", 50),
     learning_mode: z.enum(["online", "physical", "hybrid"]),
-    udemy_url: optionalHttpsUrl,
     certificate_available: z.boolean(),
     is_featured: z.boolean(),
     status: z.enum(["draft", "published", "archived"]),
     /** Training pages that list this course. */
-    training_types: z.array(trainingType).max(3).default([]),
   })
   .refine((c) => c.discount_price == null || c.discount_price === 0 || c.discount_price < c.actual_price, {
     path: ["discount_price"],
     message: "Discount must be lower than the actual price",
   });
+
+/** A tool on the course page's "Tools covered" list. */
+export const courseToolSchema = z.object({
+  name: requiredText("Name", 60),
+  description: optionalText(200),
+  display_order: displayOrder,
+  is_active: z.boolean(),
+});
+
+/** A Udemy course included free with the course. */
+export const courseUdemyBonusSchema = z.object({
+  title: requiredText("Title", 200),
+  course_url: z.url({ protocol: /^https$/, error: "Enter the full https:// Udemy link" }),
+  image_url: z
+    .url({ protocol: /^https$/, error: "Enter an https:// image link, or upload an image" })
+    .or(z.literal(""))
+    .transform((value) => value || ""),
+  instructor: requiredText("Instructor", 120),
+  rating: z.number().min(0).max(5),
+  ratings_count: z.number().int().min(0),
+  total_hours: z.string().trim().max(20),
+  lectures: z.number().int().min(0),
+  level: z.string().trim().max(40),
+  description: z.string().trim().max(1000),
+  display_order: displayOrder,
+  is_active: z.boolean(),
+});
 
 export const courseStatusSchema = z.enum(["draft", "published", "archived"]);
 
@@ -173,6 +200,13 @@ const hrefLink = z
   .pipe(z.string().url("Enter a valid link (e.g. https://facebook.com)"));
 
 export const siteSettingsSchema = z.object({
+  /** Short notice above the navbar on every public page; empty hides it. */
+  announcement: z
+    .string()
+    .trim()
+    .max(200, "Keep it under 200 characters so it fits in the bar")
+    .nullish()
+    .transform((value) => value || null),
   site_name: optionalText(100),
   logo_url: optionalHttpsUrl.optional(),
   footer_logo_url: optionalHttpsUrl.optional(),
@@ -188,6 +222,24 @@ export const siteSettingsSchema = z.object({
     .nullable()
     .transform((v) => v || null),
   address: optionalText(200),
+  /** Pasted from Google Maps (Share → Embed a map): the iframe code or its link. */
+  map_embed_url: z
+    .string()
+    .trim()
+    .max(4000)
+    .nullish()
+    .transform((value, ctx) => {
+      if (!value) return null;
+      const url = extractGoogleMapsEmbedUrl(value);
+      if (!url) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Paste the code from Google Maps → Share → Embed a map (it starts with <iframe or https://www.google.com/maps/embed?)",
+        });
+        return z.NEVER;
+      }
+      return url;
+    }),
   social_links: z.array(z.object({ label: requiredText("Label", 40), href: hrefLink })).max(10),
   opening_hours: z.array(z.object({ days: requiredText("Days", 60), hours: requiredText("Hours", 60) })).max(10),
 });
@@ -216,18 +268,6 @@ export const aboutItemSchema = z
     path: ["icon"],
     message: "Choose one of the icons for this section",
   });
-
-// ---------------------------------------------------------------------------
-// Training page partners
-// ---------------------------------------------------------------------------
-
-export const trainingPartnerSchema = z.object({
-  type: trainingType,
-  name: requiredText("Name", 120),
-  website: optionalHttpsUrl,
-  display_order: displayOrder,
-  is_active: z.boolean(),
-});
 
 // ---------------------------------------------------------------------------
 // Training page lists and images
@@ -316,6 +356,8 @@ export const offerSchema = z.object({
 });
 
 export type CourseInput = z.input<typeof courseSchema>;
+export type CourseToolInput = z.input<typeof courseToolSchema>;
+export type CourseUdemyBonusInput = z.input<typeof courseUdemyBonusSchema>;
 export type CourseBenefitInput = z.input<typeof courseBenefitSchema>;
 export type OrderedItemInput = z.input<typeof orderedItemSchema>;
 export type CourseInstallmentInput = z.input<typeof courseInstallmentSchema>;
@@ -324,7 +366,6 @@ export type TrainingProgramInput = z.input<typeof trainingProgramSchema>;
 export type TrainingGalleryItemInput = z.input<typeof trainingGalleryItemSchema>;
 export type OfferInput = z.input<typeof offerSchema>;
 export type HomeStatInput = z.input<typeof homeStatSchema>;
-export type TrainingPartnerInput = z.input<typeof trainingPartnerSchema>;
 export type TrainingPageItemInput = z.input<typeof trainingPageItemSchema>;
 export type TrainingPageImageInput = z.input<typeof trainingPageImageSchema>;
 export type CategoryInput = z.input<typeof categorySchema>;

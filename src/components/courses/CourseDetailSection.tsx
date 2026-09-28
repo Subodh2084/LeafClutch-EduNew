@@ -3,6 +3,8 @@ import { cn } from "@/lib/utils";
 interface CourseDetailSectionProps {
   id: string;
   title: React.ReactNode;
+  /** Short line above the heading, e.g. "Bonus with your enrollment". */
+  eyebrow?: React.ReactNode;
   description?: React.ReactNode;
   /** Extra controls aligned with the heading, e.g. a download link. */
   action?: React.ReactNode;
@@ -14,6 +16,7 @@ interface CourseDetailSectionProps {
 export function CourseDetailSection({
   id,
   title,
+  eyebrow,
   description,
   action,
   className,
@@ -24,6 +27,7 @@ export function CourseDetailSection({
     <section id={id} aria-labelledby={headingId} className={cn("scroll-mt-24", className)}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
+          {eyebrow && <div className="mb-2">{eyebrow}</div>}
           <h2 id={headingId} className="text-2xl font-semibold text-foreground sm:text-[1.75rem]">
             {title}
           </h2>

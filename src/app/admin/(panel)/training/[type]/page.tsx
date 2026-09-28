@@ -9,18 +9,10 @@ import {
   updateTrainingPageImage,
   updateTrainingPageItem,
 } from "@/actions/training-pages";
-import {
-  createTrainingPartner,
-  deleteTrainingPartner,
-  removeTrainingPartnerLogo,
-  updateTrainingPartner,
-  uploadTrainingPartnerLogo,
-} from "@/actions/training-partners";
 import { ImageAdder } from "@/components/admin/ImageAdder";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { ResourceManager } from "@/components/admin/ResourceManager";
 import {
-  partnerFields,
   trainingCardFields,
   trainingImageFields,
   trainingTypeOptions,
@@ -46,21 +38,6 @@ export default async function TrainingTypeAdminPage({ params }: { params: Promis
         back={{ href: "/admin/training", label: "Training pages" }}
       />
       <div className="space-y-6">
-        <ResourceManager
-          title="Partners"
-          description="Shown in the logo strip under the hero."
-          rows={page.partners}
-          fields={partnerFields}
-          fixed={{ type }}
-          labelKey="name"
-          metaKeys={["website"]}
-          create={createTrainingPartner}
-          update={updateTrainingPartner}
-          remove={deleteTrainingPartner}
-          image={{ key: "logo", label: "Logo", upload: uploadTrainingPartnerLogo, clear: removeTrainingPartnerLogo }}
-          addLabel="Add partner"
-        />
-
         <ResourceManager
           title="Why choose us"
           rows={page.features}

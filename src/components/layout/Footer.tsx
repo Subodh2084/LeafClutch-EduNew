@@ -7,6 +7,7 @@ import { siteConfig } from "@/config/site";
 import { getSiteSettings } from "@/lib/content";
 import { coursesHref } from "@/lib/course-display";
 import { getCourseCategories } from "@/lib/courses";
+import { buildTelUrl } from "@/lib/utils";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 
 export async function Footer() {
@@ -44,7 +45,7 @@ export async function Footer() {
 
   const contactItems = [
     contact.email && { icon: Mail, label: contact.email, href: `mailto:${contact.email}` },
-    contact.phone && { icon: Phone, label: contact.phone, href: `tel:${contact.phone}` },
+    contact.phone && { icon: Phone, label: contact.phone, href: buildTelUrl(contact.phone) },
     whatsappUrl && { icon: MessageCircle, label: "WhatsApp", href: whatsappUrl },
     contact.address && { icon: MapPin, label: contact.address, href: null },
   ].filter((item) => !!item);
@@ -105,8 +106,46 @@ export async function Footer() {
       </Container>
 
       <div className="border-t border-white/10">
-        <Container className="py-6 text-sm text-white/50">
-          © {new Date().getFullYear()} {contact.site_name || siteConfig.name}. All rights reserved.
+        {/* Bottom/right padding keeps these links clear of the floating WhatsApp button. */}
+        <Container className="flex flex-col gap-3 pt-6 pb-24 text-sm text-white/50 sm:flex-row sm:items-center sm:justify-between sm:pb-6 sm:pr-24 lg:pr-24 2xl:pr-8">
+          <p>
+            © {new Date().getFullYear()} {contact.site_name || siteConfig.name}. All rights reserved.{" "}
+            <a
+              href={siteConfig.companyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="whitespace-nowrap text-white/80 underline underline-offset-4 transition-colors hover:text-white"
+            >
+              leafclutch.com.np<span className="sr-only"> (company website, opens in a new tab)</span>
+            </a>
+          </p>
+          <ul aria-label="Legal" className="flex flex-wrap gap-x-6 gap-y-2">
+            <li>
+              <a
+                href={siteConfig.legal.privacy}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-white"
+              >
+                Privacy Policy<span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href={siteConfig.legal.terms}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-white"
+              >
+                Terms of Service<span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            </li>
+            <li>
+              <Link href="/admin" className="transition-colors hover:text-white">
+                Admin
+              </Link>
+            </li>
+          </ul>
         </Container>
       </div>
     </footer>

@@ -4,11 +4,13 @@
 -- (src/lib/storage.ts). SVG is excluded on purpose: it can carry scripts.
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types) values
-  ('course-thumbnails',     'course-thumbnails',     true, 2097152,  array['image/jpeg', 'image/png', 'image/webp']),
+  ('course-thumbnails',     'course-thumbnails',     true, 5242880,  array['image/jpeg', 'image/png', 'image/webp']),
   ('course-curriculums',    'course-curriculums',    true, 10485760, array['application/pdf']),
-  ('instructor-images',     'instructor-images',     true, 2097152,  array['image/jpeg', 'image/png', 'image/webp']),
+  ('instructor-images',     'instructor-images',     true, 5242880,  array['image/jpeg', 'image/png', 'image/webp']),
   ('training-images',       'training-images',       true, 5242880,  array['image/jpeg', 'image/png', 'image/webp']),
-  ('offer-images',          'offer-images',          true, 2097152,  array['image/jpeg', 'image/png', 'image/webp'])
+  ('offer-images',          'offer-images',          true, 5242880,  array['image/jpeg', 'image/png', 'image/webp']),
+  -- logos and favicon (the favicon may be an .ico file)
+  ('site-assets',           'site-assets',           true, 2097152,  array['image/jpeg', 'image/png', 'image/webp', 'image/x-icon'])
 on conflict (id) do update set
   public = excluded.public,
   file_size_limit = excluded.file_size_limit,
@@ -19,11 +21,11 @@ drop policy if exists "Admins manage site assets" on storage.objects;
 create policy "Admins manage site assets" on storage.objects for all to authenticated
   using (
     bucket_id in ('course-thumbnails', 'course-curriculums', 'instructor-images',
-                  'training-images', 'offer-images')
+                  'training-images', 'offer-images', 'site-assets')
     and (select public.is_admin())
   )
   with check (
     bucket_id in ('course-thumbnails', 'course-curriculums', 'instructor-images',
-                  'training-images', 'offer-images')
+                  'training-images', 'offer-images', 'site-assets')
     and (select public.is_admin())
   );
