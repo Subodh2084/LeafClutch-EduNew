@@ -3,9 +3,7 @@
 ## Setup
 
 1. Create a new Supabase project.
-2. **Easiest:** paste `setup.sql` into the SQL editor and click Run. It contains every migration below plus the seed, in order, and is safe to run again at any time (after pulling changes, just run it again). Regenerate it with `npm run db:bundle` after changing a migration or the seed.
-
-   Or run the migrations one by one, in order, with `npx supabase db push` or the SQL editor:
+2. Run the 17 migrations in order, either with `npx supabase db push` or by pasting each file from `migrations/` into the SQL editor:
 
    | File | Contents |
    | --- | --- |
