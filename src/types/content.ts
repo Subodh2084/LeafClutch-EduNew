@@ -58,6 +58,8 @@ export interface SocialLink {
 
 /** The single row of global settings. */
 export interface SiteSettings {
+  /** Short notice shown above the navbar on every public page; empty hides it. */
+  announcement?: string | null;
   site_name?: string | null;
   logo_url?: string | null;
   footer_logo_url?: string | null;

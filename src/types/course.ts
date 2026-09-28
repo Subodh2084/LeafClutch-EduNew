@@ -29,8 +29,6 @@ export interface Course {
   duration: string;
   learning_mode: LearningMode;
   curriculum_pdf_url: string | null;
-  /** The course's Udemy link. When set, the course page advertises a free Udemy course. */
-  udemy_url: string | null;
   certificate_available: boolean;
   is_featured: boolean;
   status: CourseStatus;
@@ -43,8 +41,6 @@ export interface Course {
 export interface CourseTool {
   id: string;
   name: string;
-  /** Key into the tool icon registry (components/courses/tool-icons), e.g. "react". */
-  icon?: string | null;
   description?: string | null;
 }
 

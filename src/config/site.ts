@@ -37,6 +37,9 @@ export const siteConfig = {
     ],
   },
 
+  /** The parent company's main website, linked from the footer. */
+  companyUrl: "https://leafclutch.com.np/",
+
   // Legal pages live on the company site (copies: privacy.md, "terms of service.md").
   legal: {
     privacy: "https://leafclutch.com.np/privacy",

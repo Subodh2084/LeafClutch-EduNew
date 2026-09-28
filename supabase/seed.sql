@@ -38,46 +38,46 @@ end $seed$;
 
 do $seed$ begin
   if not exists (select 1 from private.seed_log where name = 'insert:courses:1') then
-    insert into public.courses (id, category_id, name, slug, short_description, description, thumbnail, actual_price, discount_price, duration, learning_mode, curriculum_pdf_url, udemy_url, certificate_available, is_featured, status, created_at) values
+    insert into public.courses (id, category_id, name, slug, short_description, description, thumbnail, actual_price, discount_price, duration, learning_mode, curriculum_pdf_url, certificate_available, is_featured, status, created_at) values
       ('7516a9d7-d1dd-42c8-8c5f-53cea00ed33c', '6ce7e45e-a8cb-4386-8c89-407261d3e2d1', 'Agentic AI', 'agentic-ai', 'Design and ship AI agents that plan, use tools and complete multi-step tasks with LLMs.', 'Agentic AI goes beyond chatbots. In this course you will learn how large language models can reason about a goal, choose tools, call APIs and check their own work to finish real tasks.
 
     You will start with LLM fundamentals and prompt design, then move to tool calling, retrieval-augmented generation and memory. The second half of the course focuses on agent architecture: planning loops, multi-agent coordination, evaluation and guardrails.
 
-    Every module ends with a build. By the final week you will have deployed a working agent that solves a problem you choose, along with the evaluation suite that proves it works.', null, 25000, 18000, '3 months', 'hybrid', '/curriculum/agentic-ai-curriculum.pdf', null, true, true, 'published', now() - interval '13 minutes'),
+    Every module ends with a build. By the final week you will have deployed a working agent that solves a problem you choose, along with the evaluation suite that proves it works.', null, 25000, 18000, '3 months', 'hybrid', '/curriculum/agentic-ai-curriculum.pdf', true, true, 'published', now() - interval '13 minutes'),
       ('20a70350-dffd-40d5-87ad-a61e7360e743', '6ce7e45e-a8cb-4386-8c89-407261d3e2d1', 'Generative AI', 'generative-ai', 'Work with text, image and embedding models to build practical generative AI features.', 'This course gives developers a hands-on foundation in generative AI. You will learn how modern text and image models work at a practical level, and how to integrate them into applications responsibly.
 
-    Topics include prompt engineering, embeddings and vector search, retrieval-augmented generation, fine-tuning trade-offs and cost control. You will build a document question-answering app and an image-generation workflow as course projects.', null, 20000, 15000, '2 months', 'online', null, null, true, false, 'published', now() - interval '12 minutes'),
+    Topics include prompt engineering, embeddings and vector search, retrieval-augmented generation, fine-tuning trade-offs and cost control. You will build a document question-answering app and an image-generation workflow as course projects.', null, 20000, 15000, '2 months', 'online', null, true, false, 'published', now() - interval '12 minutes'),
       ('d523ab0a-33e1-4928-8734-3956c6739d04', '6ce7e45e-a8cb-4386-8c89-407261d3e2d1', 'Machine Learning with Python', 'machine-learning-with-python', 'Learn supervised and unsupervised learning with scikit-learn, from data prep to deployment.', 'A structured introduction to machine learning for people who can already write basic Python. You will cover the full workflow: cleaning data, engineering features, choosing models, evaluating them honestly and deploying the result.
 
-    Algorithms covered include linear and logistic regression, decision trees, ensembles, clustering and an introduction to neural networks. The course closes with a capstone on a real Nepali dataset.', null, 22000, null, '3 months', 'physical', null, null, true, false, 'published', now() - interval '11 minutes'),
+    Algorithms covered include linear and logistic regression, decision trees, ensembles, clustering and an introduction to neural networks. The course closes with a capstone on a real Nepali dataset.', null, 22000, null, '3 months', 'physical', null, true, false, 'published', now() - interval '11 minutes'),
       ('f42af617-4d01-4006-888b-4d6d6b6052f4', 'a3394a82-6db1-422e-882a-e12dcf5a4969', 'MERN Stack Development', 'mern-stack-development', 'Build full-stack JavaScript applications with MongoDB, Express, React and Node.js.', 'Go from JavaScript fundamentals to deploying complete full-stack applications. You will build REST APIs with Node.js and Express, model data in MongoDB and create responsive interfaces with React.
 
-    Along the way you will learn authentication, file uploads, testing and deployment. The course is built around three projects of increasing size, finishing with a team project run the way a real development team works.', null, 30000, 24000, '4 months', 'hybrid', null, null, true, true, 'published', now() - interval '10 minutes'),
+    Along the way you will learn authentication, file uploads, testing and deployment. The course is built around three projects of increasing size, finishing with a team project run the way a real development team works.', null, 30000, 24000, '4 months', 'hybrid', null, true, true, 'published', now() - interval '10 minutes'),
       ('a31d768d-750b-4607-8c8d-6cd1a8b5994b', 'a3394a82-6db1-422e-882a-e12dcf5a4969', 'Frontend Development with React & Next.js', 'react-nextjs-frontend', 'Create fast, accessible interfaces with React, TypeScript, Tailwind CSS and Next.js.', 'A focused frontend course for learners who know HTML, CSS and basic JavaScript. You will learn component design, state management, data fetching and routing with React and Next.js, written in TypeScript.
 
-    The course puts equal weight on quality: accessibility, performance and responsive layout are part of every assignment, not an afterthought.', null, 18000, null, '2.5 months', 'online', null, null, true, false, 'published', now() - interval '9 minutes'),
+    The course puts equal weight on quality: accessibility, performance and responsive layout are part of every assignment, not an afterthought.', null, 18000, null, '2.5 months', 'online', null, true, false, 'published', now() - interval '9 minutes'),
       ('8ddf1088-14f1-46d0-827a-17b814c7539f', 'a3394a82-6db1-422e-882a-e12dcf5a4969', 'Python Django Web Development', 'python-django', 'Build secure, database-driven web applications and APIs with Python and Django.', 'Learn backend web development with one of the most dependable frameworks available. You will model data with the Django ORM, build admin tools, write REST APIs with Django REST Framework and deploy to a Linux server.
 
-    The course covers authentication, permissions, testing and the security practices every production application needs.', null, 20000, 16000, '3 months', 'physical', null, null, true, false, 'published', now() - interval '8 minutes'),
+    The course covers authentication, permissions, testing and the security practices every production application needs.', null, 20000, 16000, '3 months', 'physical', null, true, false, 'published', now() - interval '8 minutes'),
       ('a626064a-7374-423e-86d6-1f8797f54a7c', '4527f811-674e-4998-8dbf-3774355570bd', 'Data Science with Python', 'data-science-with-python', 'Analyse, visualise and model data with Python, pandas, SQL and statistics.', 'This course takes you through the day-to-day work of a data scientist. You will query data with SQL, clean and reshape it with pandas, explore it visually and apply statistical reasoning to answer real questions.
 
-    The final month introduces predictive modelling and communicating findings to non-technical stakeholders. You will finish with a portfolio of three analysis projects.', null, 28000, 22000, '4 months', 'hybrid', null, null, true, true, 'published', now() - interval '7 minutes'),
+    The final month introduces predictive modelling and communicating findings to non-technical stakeholders. You will finish with a portfolio of three analysis projects.', null, 28000, 22000, '4 months', 'hybrid', null, true, true, 'published', now() - interval '7 minutes'),
       ('85a42f2c-5670-429b-8c72-f5a4e7494af2', '4527f811-674e-4998-8dbf-3774355570bd', 'Data Analytics with Power BI', 'data-analytics-power-bi', 'Build clear, interactive business dashboards with Excel, Power Query and Power BI.', 'Designed for working professionals and graduates who want to make better use of data. You will learn to clean data with Power Query, model it with DAX and design dashboards that answer business questions at a glance.
 
-    All exercises use realistic business datasets from finance, retail and operations.', null, 15000, null, '6 weeks', 'online', null, null, true, false, 'published', now() - interval '6 minutes'),
+    All exercises use realistic business datasets from finance, retail and operations.', null, 15000, null, '6 weeks', 'online', null, true, false, 'published', now() - interval '6 minutes'),
       ('74b2aa62-017d-4a09-88bc-1c1565e2b715', '4ebda519-dcbf-4c71-80b9-f10eaad863df', 'UI/UX Design with Figma', 'ui-ux-design', 'Research, wireframe and prototype usable digital products using Figma.', 'Learn the full product design process: understanding users, mapping journeys, sketching ideas, building wireframes and turning them into polished, testable prototypes in Figma.
 
-    You will also learn design systems, accessibility basics and how to hand designs off to developers. The course ends with a case study you can present in interviews.', null, 20000, 15000, '3 months', 'hybrid', null, null, true, true, 'published', now() - interval '5 minutes'),
+    You will also learn design systems, accessibility basics and how to hand designs off to developers. The course ends with a case study you can present in interviews.', null, 20000, 15000, '3 months', 'hybrid', null, true, true, 'published', now() - interval '5 minutes'),
       ('f7b2c938-f077-4b4c-8b37-73eb73e758f3', '5df8a66f-8525-45e6-8ead-3d9ddfc14c16', 'Ethical Hacking & Cybersecurity', 'ethical-hacking', 'Learn how attacks work and how to find and fix vulnerabilities in a legal lab environment.', 'A practical cybersecurity course built around a dedicated lab. You will learn networking fundamentals, Linux, reconnaissance, web application vulnerabilities and common exploitation techniques — always within an authorised, ethical framework.
 
-    Equal time is spent on defence: hardening systems, reading logs and writing clear vulnerability reports.', null, 25000, 20000, '3 months', 'physical', null, null, true, false, 'published', now() - interval '4 minutes'),
+    Equal time is spent on defence: hardening systems, reading logs and writing clear vulnerability reports.', null, 25000, 20000, '3 months', 'physical', null, true, false, 'published', now() - interval '4 minutes'),
       ('1e73e4b8-99b3-40f3-8d02-fae509493379', '0c89dd00-d674-4fa6-82a6-f93e17ec9dd8', 'Graphic Design Fundamentals', 'graphic-design', 'Master layout, typography, colour and branding with Photoshop and Illustrator.', 'Build a strong foundation in visual design. You will study the principles behind good layout, typography and colour, and practise them in Adobe Photoshop and Illustrator.
 
-    Projects include a logo and brand kit, social media campaign assets and a print brochure.', null, 12000, null, '2 months', 'physical', null, null, false, false, 'published', now() - interval '3 minutes'),
+    Projects include a logo and brand kit, social media campaign assets and a print brochure.', null, 12000, null, '2 months', 'physical', null, false, false, 'published', now() - interval '3 minutes'),
       ('420ccfc3-75a4-41cd-868f-69770e2ad8df', '2c000f38-8d6f-474c-8537-a61d44c7419d', 'AWS Cloud & DevOps', 'aws-cloud-devops', 'Deploy and automate applications on AWS with Linux, Docker, CI/CD and infrastructure as code.', 'Learn how modern teams ship and run software. You will set up Linux servers, containerise applications with Docker, build CI/CD pipelines and manage AWS infrastructure with Terraform.
 
-    The course aligns with the AWS Cloud Practitioner and Solutions Architect Associate exam topics.', null, 26000, 21000, '3 months', 'online', null, null, true, false, 'published', now() - interval '2 minutes'),
-      ('e099672a-84b3-4bc6-8e9d-19316a21d50c', 'a3394a82-6db1-422e-882a-e12dcf5a4969', 'Blockchain Development', 'blockchain-development', 'Smart contracts and decentralised applications with Solidity.', 'Course content in preparation.', null, 25000, null, '3 months', 'online', null, null, true, false, 'draft', now() - interval '1 minutes')
+    The course aligns with the AWS Cloud Practitioner and Solutions Architect Associate exam topics.', null, 26000, 21000, '3 months', 'online', null, true, false, 'published', now() - interval '2 minutes'),
+      ('e099672a-84b3-4bc6-8e9d-19316a21d50c', 'a3394a82-6db1-422e-882a-e12dcf5a4969', 'Blockchain Development', 'blockchain-development', 'Smart contracts and decentralised applications with Solidity.', 'Course content in preparation.', null, 25000, null, '3 months', 'online', null, true, false, 'draft', now() - interval '1 minutes')
     on conflict do nothing;
     insert into private.seed_log (name) values ('insert:courses:1');
   end if;
@@ -499,22 +499,22 @@ do $seed$ begin
   end if;
 end $seed$;
 
--- Tools covered by each course (icon keys: src/components/courses/tool-icons.ts).
+-- Tools covered by each course.
 do $seed$ begin
   if not exists (select 1 from private.seed_log where name = 'insert:course_tools:1') then
-    insert into public.course_tools (id, course_id, name, icon, description, display_order) values
-      ('44a7643e-65b0-4dc0-8d7d-1397fab3fbca', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'JavaScript', 'javascript', 'ES6+ and async code', 1),
-      ('96e645f8-0b39-4565-8174-4a07abadefb1', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'React', 'react', 'Components, state and routing', 2),
-      ('1d71d1ff-c227-4461-88e0-ef3c885ee9cd', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'Node.js', 'nodejs', 'Server-side JavaScript', 3),
-      ('0df0c5f7-ee13-4a82-8412-7d35710ef65f', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'Express', 'express', 'REST APIs and middleware', 4),
-      ('00e9af7a-b95e-4f22-80af-f5d912b68209', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'MongoDB', 'mongodb', 'Document database', 5),
-      ('ebe1ec12-e6e9-4864-83ed-1a368f561519', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'Mongoose', 'mongoose', 'Schemas and models', 6),
-      ('42bd8e72-6a5e-458d-8f35-e8d6cc9c2979', 'a626064a-7374-423e-86d6-1f8797f54a7c', 'Python', 'python', 'The language for the whole course', 1),
-      ('90f4f08c-3de8-4ff4-8517-13a74c4890da', 'a626064a-7374-423e-86d6-1f8797f54a7c', 'NumPy', 'numpy', 'Fast numerical arrays', 2),
-      ('f6fb23a8-d504-464e-8934-aef062211314', 'a626064a-7374-423e-86d6-1f8797f54a7c', 'pandas', 'pandas', 'Cleaning and reshaping data', 3),
-      ('8ed9a0dc-fea6-4786-8e91-114dc8fde89e', 'a626064a-7374-423e-86d6-1f8797f54a7c', 'SQL', null, 'Queries and joins', 4),
-      ('665e0947-1f18-4518-8635-2c7437952a16', 'a626064a-7374-423e-86d6-1f8797f54a7c', 'Matplotlib', null, 'Charts and plots', 5),
-      ('985b7bb8-4463-4e49-8773-051491d5e263', 'a626064a-7374-423e-86d6-1f8797f54a7c', 'Seaborn', null, 'Statistical visualisation', 6)
+    insert into public.course_tools (id, course_id, name, description, display_order) values
+      ('44a7643e-65b0-4dc0-8d7d-1397fab3fbca', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'JavaScript', 'ES6+ and async code', 1),
+      ('96e645f8-0b39-4565-8174-4a07abadefb1', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'React', 'Components, state and routing', 2),
+      ('1d71d1ff-c227-4461-88e0-ef3c885ee9cd', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'Node.js', 'Server-side JavaScript', 3),
+      ('0df0c5f7-ee13-4a82-8412-7d35710ef65f', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'Express', 'REST APIs and middleware', 4),
+      ('00e9af7a-b95e-4f22-80af-f5d912b68209', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'MongoDB', 'Document database', 5),
+      ('ebe1ec12-e6e9-4864-83ed-1a368f561519', 'f42af617-4d01-4006-888b-4d6d6b6052f4', 'Mongoose', 'Schemas and models', 6),
+      ('42bd8e72-6a5e-458d-8f35-e8d6cc9c2979', 'a626064a-7374-423e-86d6-1f8797f54a7c', 'Python', 'The language for the whole course', 1),
+      ('90f4f08c-3de8-4ff4-8517-13a74c4890da', 'a626064a-7374-423e-86d6-1f8797f54a7c', 'NumPy', 'Fast numerical arrays', 2),
+      ('f6fb23a8-d504-464e-8934-aef062211314', 'a626064a-7374-423e-86d6-1f8797f54a7c', 'pandas', 'Cleaning and reshaping data', 3),
+      ('8ed9a0dc-fea6-4786-8e91-114dc8fde89e', 'a626064a-7374-423e-86d6-1f8797f54a7c', 'SQL', 'Queries and joins', 4),
+      ('665e0947-1f18-4518-8635-2c7437952a16', 'a626064a-7374-423e-86d6-1f8797f54a7c', 'Matplotlib', 'Charts and plots', 5),
+      ('985b7bb8-4463-4e49-8773-051491d5e263', 'a626064a-7374-423e-86d6-1f8797f54a7c', 'Seaborn', 'Statistical visualisation', 6)
     on conflict do nothing;
     insert into private.seed_log (name) values ('insert:course_tools:1');
   end if;

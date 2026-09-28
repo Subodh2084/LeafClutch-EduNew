@@ -1,4 +1,4 @@
--- 16/16 · Brand spelling: "LeafClutch" → "Leafclutch" in all stored text.
+-- 17/17 · Brand spelling: "LeafClutch" → "Leafclutch" in all stored text.
 -- Updates every text column of every table in the public schema, only where
 -- the old spelling appears. Safe to run again: afterwards nothing matches.
 

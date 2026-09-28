@@ -53,6 +53,7 @@ export async function getFeaturedTestimonials(
 }
 
 const emptySettings: SiteSettings = {
+  announcement: null,
   site_name: null,
   logo_url: null,
   footer_logo_url: null,
