@@ -15,7 +15,7 @@ export async function generateMetadata({ searchParams }: PageProps<"/enroll">): 
   const course = await getPublishedCourseBySlug(await requestedSlug(searchParams));
   return {
     title: course ? `Enroll in ${course.name}` : "Enroll",
-    description: "Send your enrollment details to LeafClutch Technologies on WhatsApp or by email.",
+    description: "Send your enrollment details to Leafclutch Technologies on WhatsApp or by email.",
     robots: { index: false }, // a form page, not content to rank
   };
 }

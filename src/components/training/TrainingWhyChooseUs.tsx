@@ -87,7 +87,7 @@ export function TrainingWhyChooseUs({ data }: { data: TrainingPageData["whyChoos
         <div>
           <SectionHeading
             id="training-why-heading"
-            eyebrow="Why LeafClutch"
+            eyebrow="Why Leafclutch"
             title={data.title}
             description={data.description}
           />

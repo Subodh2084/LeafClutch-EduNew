@@ -1,14 +1,14 @@
--- Deletes EVERYTHING the LeafClutch-EduNew migrations created (tables, data,
+-- Deletes EVERYTHING the Leafclutch-EduNew migrations created (tables, data,
 -- functions, storage policy and empty buckets), so the migrations can be re-run.
 -- Auth users (your admin login) are kept.
 --
 -- Safety check: stops without deleting anything unless this is the
--- LeafClutch-EduNew database. Tables such as courses and faqs also exist in the
+-- Leafclutch-EduNew database. Tables such as courses and faqs also exist in the
 -- shared edu-website project, and this must never run there.
 do $$
 begin
   if to_regprocedure('private.setup_content_table(text,boolean)') is null then
-    raise exception 'This is not the LeafClutch-EduNew database. Nothing was deleted.';
+    raise exception 'This is not the Leafclutch-EduNew database. Nothing was deleted.';
   end if;
 end;
 $$;

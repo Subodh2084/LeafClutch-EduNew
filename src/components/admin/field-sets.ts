@@ -188,7 +188,7 @@ export const trainingImageFields: FieldDef[] = [
 ];
 
 export const siteSettingsFields: FieldDef[] = [
-  { name: "site_name", label: "Site Name", type: "text", nullable: true, placeholder: "LeafClutch Technologies" },
+  { name: "site_name", label: "Site Name", type: "text", nullable: true, placeholder: "Leafclutch Technologies" },
   { name: "logo_url", label: "Header Logo Image", type: "file", nullable: true, hint: "Upload image file or paste URL" },
   { name: "footer_logo_url", label: "Footer Logo Image (Optional)", type: "file", nullable: true, hint: "Upload image file or paste URL. Defaults to Header Logo if empty" },
   { name: "favicon_url", label: "Favicon Icon", type: "file", nullable: true, hint: "Upload icon (.ico, .png, .svg) or paste URL" },

@@ -24,6 +24,7 @@
    | `20260927…_site_settings_logo_desc.sql` | site name, logos, favicon and description in site settings |
    | `20260928…_course_tools_udemy.sql` | course tools, free Udemy courses; no courses on the training pages |
    | `20260929…_site_settings_map.sql` | Google Maps link for the Contact page |
+   | `20260930…_rename_leafclutch.sql` | brand spelling "Leafclutch" in all stored text |
 
 3. Run `seed.sql`. It loads the content that used to live in `src/data`. Most of it is placeholder copy.
 

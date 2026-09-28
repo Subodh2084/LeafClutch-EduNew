@@ -22,7 +22,7 @@ create table if not exists public.course_tools (
 create index if not exists course_tools_course_id_idx on public.course_tools (course_id, display_order);
 
 -- ---------------------------------------------------------------------------
--- Udemy courses students get free with a course. Content LeafClutch
+-- Udemy courses students get free with a course. Content Leafclutch
 -- maintains; nothing is fetched from Udemy.
 -- ---------------------------------------------------------------------------
 

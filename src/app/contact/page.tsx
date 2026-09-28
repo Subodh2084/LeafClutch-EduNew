@@ -10,7 +10,7 @@ import { getContactInfo, getContactPageContent } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Contact Us",
   description:
-    "Contact LeafClutch Technologies about courses, batch timings or fees. Send us a message on WhatsApp or by email.",
+    "Contact Leafclutch Technologies about courses, batch timings or fees. Send us a message on WhatsApp or by email.",
 };
 
 export default async function ContactPage() {

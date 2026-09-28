@@ -1,16 +1,16 @@
 import type { AboutContent } from "@/types/about";
 
-// PLACEHOLDER About page copy — review with LeafClutch before launch.
+// PLACEHOLDER About page copy — review with Leafclutch before launch.
 // The stats, value/feature/step cards and mentors come from Supabase (lib/content).
 
-// Photo: CC0 via Openverse, by cuboulder. Replace with a real LeafClutch class.
+// Photo: CC0 via Openverse, by cuboulder. Replace with a real Leafclutch class.
 //   https://www.flickr.com/photos/38587132@N02/23928923468
 export const aboutData: AboutContent = {
   hero: {
-    eyebrow: "About LeafClutch",
+    eyebrow: "About Leafclutch",
     title: "We teach technology the way it is practised at work",
     description:
-      "LeafClutch Technologies is a training institute in Nepal. We run practical courses in web development, AI, data science, design and cloud, taught by mentors who build software for a living.",
+      "Leafclutch Technologies is a training institute in Nepal. We run practical courses in web development, AI, data science, design and cloud, taught by mentors who build software for a living.",
     image: {
       src: "/images/about/about-coding-class.jpg",
       alt: "Students following a live programming lesson on their laptops",
@@ -21,7 +21,7 @@ export const aboutData: AboutContent = {
     eyebrow: "Who we are",
     title: "A training institute run by people who work in tech",
     paragraphs: [
-      "LeafClutch started with a simple observation: many graduates know the theory but have never built and shipped a working project. Employers notice the gap.",
+      "Leafclutch started with a simple observation: many graduates know the theory but have never built and shipped a working project. Employers notice the gap.",
       "Our courses close it. Classes stay small, every module ends with something you build, and mentors review your work the way a senior colleague would.",
     ],
   },
@@ -32,7 +32,7 @@ export const aboutData: AboutContent = {
   },
   visionMission: {
     eyebrow: "Vision & mission",
-    title: "Why LeafClutch exists",
+    title: "Why Leafclutch exists",
     items: [
       {
         id: "vision",
@@ -53,7 +53,7 @@ export const aboutData: AboutContent = {
   features: {
     eyebrow: "Why learn with us",
     title: "Built to get you job-ready",
-    description: "Everything in a LeafClutch course is there to help you do the work, not just pass a test.",
+    description: "Everything in a Leafclutch course is there to help you do the work, not just pass a test.",
   },
   mentors: {
     eyebrow: "Our mentors",

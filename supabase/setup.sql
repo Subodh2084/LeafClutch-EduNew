@@ -1,4 +1,4 @@
--- LeafClutch — complete Supabase setup (generated; do not edit by hand).
+-- Leafclutch — complete Supabase setup (generated; do not edit by hand).
 --
 -- Paste this whole file into the Supabase SQL editor and click Run. It is safe
 -- to run again at any time: it creates whatever is missing and brings existing
@@ -6,7 +6,7 @@
 -- rows you edited or deleted in Supabase or the admin are left alone.
 --
 -- Generated from supabase/migrations/*.sql and supabase/seed.sql by
--- "npm run db:bundle". Contents: 15 migrations, then the seed.
+-- "npm run db:bundle". Contents: 16 migrations, then the seed.
 
 -- ===========================================================================
 -- 20260924000001_auth_and_helpers.sql
@@ -781,7 +781,7 @@ create table if not exists public.course_tools (
 create index if not exists course_tools_course_id_idx on public.course_tools (course_id, display_order);
 
 -- ---------------------------------------------------------------------------
--- Udemy courses students get free with a course. Content LeafClutch
+-- Udemy courses students get free with a course. Content Leafclutch
 -- maintains; nothing is fetched from Udemy.
 -- ---------------------------------------------------------------------------
 
@@ -840,6 +840,33 @@ alter table public.site_settings
 alter table public.site_settings drop constraint if exists site_settings_map_embed_url_check;
 alter table public.site_settings add constraint site_settings_map_embed_url_check
   check (map_embed_url is null or map_embed_url ~ '^https://www\.google\.com/maps/embed\?');
+
+-- ===========================================================================
+-- 20260930000000_rename_leafclutch.sql
+-- ===========================================================================
+
+-- 16/16 · Brand spelling: "LeafClutch" → "Leafclutch" in all stored text.
+-- Updates every text column of every table in the public schema, only where
+-- the old spelling appears. Safe to run again: afterwards nothing matches.
+
+do $$
+declare
+  col record;
+begin
+  for col in
+    select c.table_name, c.column_name
+    from information_schema.columns c
+    join information_schema.tables t
+      on t.table_schema = c.table_schema and t.table_name = c.table_name and t.table_type = 'BASE TABLE'
+    where c.table_schema = 'public' and c.data_type in ('text', 'character varying')
+  loop
+    execute format(
+      'update public.%I set %I = replace(%I, %L, %L) where %I like %L',
+      col.table_name, col.column_name, col.column_name, 'LeafClutch', 'Leafclutch', col.column_name, '%LeafClutch%'
+    );
+  end loop;
+end;
+$$;
 
 -- ===========================================================================
 -- seed.sql
@@ -937,8 +964,8 @@ do $seed$ begin
       ('dbcb7ff4-d93b-47c5-89c4-1676f1933929', '7516a9d7-d1dd-42c8-8c5f-53cea00ed33c', 'Five portfolio projects', 'Build a research assistant, a RAG app, a tool-using agent, a multi-agent workflow and a capstone.', 2),
       ('21639988-8ddb-47a5-8340-583d2643866d', '7516a9d7-d1dd-42c8-8c5f-53cea00ed33c', 'Evaluation and guardrails', 'Learn to measure agent quality and add safety checks — the part most tutorials skip.', 3),
       ('17298c68-1e42-404e-84b5-60acea804217', '7516a9d7-d1dd-42c8-8c5f-53cea00ed33c', 'Recorded classes', 'Every session is recorded so you can revisit difficult topics at your own pace.', 4),
-      ('09d4c075-593d-4978-854d-2008a44a813c', '7516a9d7-d1dd-42c8-8c5f-53cea00ed33c', 'Internship pathway', 'Top performers are considered for an internship on real LeafClutch AI projects.', 5),
-      ('20d2d869-48d0-4c84-839c-49fe0a44eef2', '7516a9d7-d1dd-42c8-8c5f-53cea00ed33c', 'Certificate of completion', 'Receive a LeafClutch certificate after completing the course and capstone.', 6),
+      ('09d4c075-593d-4978-854d-2008a44a813c', '7516a9d7-d1dd-42c8-8c5f-53cea00ed33c', 'Internship pathway', 'Top performers are considered for an internship on real Leafclutch AI projects.', 5),
+      ('20d2d869-48d0-4c84-839c-49fe0a44eef2', '7516a9d7-d1dd-42c8-8c5f-53cea00ed33c', 'Certificate of completion', 'Receive a Leafclutch certificate after completing the course and capstone.', 6),
       ('9c422131-f9dd-4388-80b6-7acbc1ea1629', '20a70350-dffd-40d5-87ad-a61e7360e743', 'Hands-on labs', 'Guided labs for prompting, embeddings and retrieval with real APIs.', 1),
       ('abc06a2f-7281-4010-86de-92b0ed23c215', '20a70350-dffd-40d5-87ad-a61e7360e743', 'Two complete projects', 'A document Q&A app and an image-generation workflow for your portfolio.', 2),
       ('438cbae9-d6e5-4e07-88e5-b701b8772ba3', '20a70350-dffd-40d5-87ad-a61e7360e743', 'Cost and safety practices', 'Learn how to keep AI features affordable, reliable and responsible.', 3),
@@ -1108,7 +1135,7 @@ do $seed$ begin
       ('7423eec7-824d-4d2f-863e-5d22f5f01a08', 'How do I enroll?', 'Open the course you are interested in and select Enroll Now. Fill in the short form and send it to us by WhatsApp or email — our team will confirm your seat and share the next steps.', 'enrollment', null, 5, true),
       ('760d91ff-ebb2-4c2d-83ca-04384efd7175', 'Which payment methods do you accept?', 'We accept eSewa, Khalti, Fonepay and bank transfer. Our team confirms how you will pay after you enroll, and any instalment plan is shown on the course page.', 'enrollment', null, 6, true),
       ('05f92c2c-337b-4829-81c3-b88b7905c968', 'Can I pay in instalments?', 'Many courses can be paid in instalments. Where an instalment plan is available, the course page shows each instalment and when it is due.', 'enrollment', null, 7, true),
-      ('208ce88b-5b46-468d-8cde-dc661e66a5d0', 'Will I receive a certificate?', 'Courses that include a certificate say so on the course page. You receive a LeafClutch certificate of completion after successfully finishing the course and its projects.', 'certificate', null, 8, true),
+      ('208ce88b-5b46-468d-8cde-dc661e66a5d0', 'Will I receive a certificate?', 'Courses that include a certificate say so on the course page. You receive a Leafclutch certificate of completion after successfully finishing the course and its projects.', 'certificate', null, 8, true),
       ('4d4fd572-693f-4d11-8f38-1a57bcc26a4a', 'What do I need to know before joining Agentic AI?', 'You should be comfortable writing basic Python — functions, loops and working with lists and dictionaries. No prior machine learning experience is required.', 'course', '7516a9d7-d1dd-42c8-8c5f-53cea00ed33c', 1, true),
       ('05519eda-4de5-425e-8cfe-2559ab4cbb3e', 'Do I need to pay for AI model APIs?', 'Most exercises can be completed with free tiers or open models. Where a paid API is useful, we show you how to keep costs very low and suggest free alternatives.', 'course', '7516a9d7-d1dd-42c8-8c5f-53cea00ed33c', 2, true),
       ('4cb29760-92f3-4fba-8168-c7e11eedc30f', 'What kind of laptop do I need?', 'Any laptop from the last five years with 8 GB of RAM is enough. Heavy computation runs in the cloud, not on your machine.', 'course', '7516a9d7-d1dd-42c8-8c5f-53cea00ed33c', 3, true),
@@ -1131,7 +1158,7 @@ do $seed$ begin
   end if;
 end $seed$;
 
--- TODO: confirm these figures with LeafClutch before launch.
+-- TODO: confirm these figures with Leafclutch before launch.
 do $seed$ begin
   if not exists (select 1 from private.seed_log where name = 'insert:home_stats:1') then
     insert into public.home_stats (id, value, label, display_order) values
@@ -1189,7 +1216,7 @@ do $seed$ begin
       ('53da45c6-80f4-45f5-8a2e-aa326aa703eb', 'feature', 'projects', 'Real projects', 'Finish with portfolio projects you can show employers and explain in interviews.', 3),
       ('c2e081bc-6cbd-448d-8631-624792c6d898', 'feature', 'career', 'Career focus', 'CV reviews, interview practice and guidance on internships and first roles.', 4),
       ('857d15a5-5a8a-415b-8d8e-ee2f44d5e64f', 'feature', 'curriculum', 'Industry-relevant curriculum', 'Course content is reviewed regularly to match the tools teams use today.', 5),
-      ('5bf90f2b-2e41-4c87-8af8-0df9efadcbfa', 'feature', 'certificate', 'Recognised certificate', 'Earn a LeafClutch certificate backed by the projects you completed.', 6),
+      ('5bf90f2b-2e41-4c87-8af8-0df9efadcbfa', 'feature', 'certificate', 'Recognised certificate', 'Earn a Leafclutch certificate backed by the projects you completed.', 6),
       ('5dca624e-82c0-4f2e-8ea6-e41a6edbaa84', 'learning_step', 'learn', 'Learn', 'Understand the core concepts in live, mentor-led classes.', 1),
       ('4815d4ca-59a2-4a6e-87b6-16fb87d7ac66', 'learning_step', 'practice', 'Practice', 'Work through guided exercises and get feedback on your work.', 2),
       ('05cc9ae0-bba0-47d3-8780-edcba0f577a2', 'learning_step', 'build', 'Build', 'Build real projects from start to finish for your portfolio.', 3),
@@ -1213,7 +1240,7 @@ do $seed$ begin
       ('e6b0b1fc-4926-450c-8130-3bf616295043', 'academic', 'Ramesh Adhikari', null, null, 'IT Coordinator, Himalaya College of Computing', 'The workshops filled a real gap in our curriculum. Planning around our exam calendar was easy, and attendance stayed strong.', null, true, true, 2),
       ('3863b39e-059f-464b-8cf6-ff4e8b0275d4', 'academic', 'Anjali Mahato', null, null, 'Final-year student, Terai Science Campus', 'Building a full project with a team, the way companies do it, made internships feel far less intimidating.', null, true, true, 3),
       ('2418dff9-16ca-481f-8828-e80dee63679f', 'government', 'Binod Poudel', null, null, 'IT Officer, Municipal e-Governance Unit', 'The cybersecurity sessions were practical and matched the systems our staff use every day. We have already changed several routines.', null, true, true, 1),
-      ('4f78386b-d00e-4106-8029-01da30f60883', 'government', 'Sita Bhandari', null, null, 'Program Officer, Public Service Skills Institute', 'LeafClutch adapted the content for participants with very different starting levels, and the follow-up support helped it stick.', null, true, true, 2),
+      ('4f78386b-d00e-4106-8029-01da30f60883', 'government', 'Sita Bhandari', null, null, 'Program Officer, Public Service Skills Institute', 'Leafclutch adapted the content for participants with very different starting levels, and the follow-up support helped it stick.', null, true, true, 2),
       ('4bd5029c-dace-4706-8817-81151f84caf9', 'government', 'Hari Thapa', null, null, 'Data Section Chief, Local Government Data Office', 'Our team now builds its own dashboards for monthly reporting. The training used our own data formats, which made all the difference.', null, true, true, 3)
     on conflict do nothing;
     insert into private.seed_log (name) values ('insert:testimonials:2');
@@ -1304,7 +1331,7 @@ do $seed$ begin
   end if;
 end $seed$;
 
--- Placeholder CC0 stock photos (public/training/*) until real LeafClutch photos exist.
+-- Placeholder CC0 stock photos (public/training/*) until real Leafclutch photos exist.
 do $seed$ begin
   if not exists (select 1 from private.seed_log where name = 'insert:training_page_images:1') then
     insert into public.training_page_images (id, type, placement, image_url, alt, display_order) values
@@ -1338,8 +1365,8 @@ end $seed$;
 do $seed$ begin
   if not exists (select 1 from private.seed_log where name = 'insert:training_pages:1') then
     insert into public.training_pages (type, hero_eyebrow, hero_title, hero_description, hero_cta_label, partners_title, courses_title, courses_description, why_title, why_description, process_title, process_description, programs_title, programs_description, testimonials_title, testimonials_description, cta_title, cta_description, cta_label) values
-      ('corporate', 'Corporate Training', 'Empower Your Team With Industry-Ready Technology Skills', 'Equip your workforce with practical, industry-focused technology training designed around your organization''s goals, challenges, and future needs.', 'Request Corporate Training', 'Trusted by Businesses & Organizations', 'Corporate Courses', 'Proven courses we adapt for teams, from AI and automation to cloud, security and analytics.', 'Training that fits the way your team works', 'We build programs around your tools, your projects and your schedule, so new skills show up in day-to-day work.', 'How we run a corporate program', 'A clear four-step process, from the first conversation to follow-up support.', 'Programs built around your goals', 'Beyond individual courses, we design complete programs for teams and departments.', 'What our corporate clients say', 'Feedback from teams who have trained with LeafClutch.', 'Ready to Upskill Your Team?', 'Let''s build a training program around your organization''s goals.', 'Request Corporate Training'),
-      ('academic', 'Academic Training', 'Prepare Students for the Skills and Careers of Tomorrow', 'Help students bridge the gap between academic learning and industry expectations through practical, mentor-led technology training.', 'Partner With Us', 'Our Academic Partners', 'Academic Courses', 'Career-focused courses we run for colleges and schools, from web development to data and design.', 'Learning that connects the classroom to industry', 'We work alongside your faculty to give students practical skills, real projects and a clear view of technology careers.', 'How we work with your institution', 'A clear four-step process, planned around your academic calendar.', 'Programs for students and faculty', 'From single workshops to semester-long programs, we plan the format with your institution.', 'What our academic partners say', 'Feedback from institutions and faculty who have worked with LeafClutch.', 'Let''s Prepare Students for the Future', 'Partner with LeafClutch to bring industry-focused technology learning to your institution.', 'Partner With Us'),
+      ('corporate', 'Corporate Training', 'Empower Your Team With Industry-Ready Technology Skills', 'Equip your workforce with practical, industry-focused technology training designed around your organization''s goals, challenges, and future needs.', 'Request Corporate Training', 'Trusted by Businesses & Organizations', 'Corporate Courses', 'Proven courses we adapt for teams, from AI and automation to cloud, security and analytics.', 'Training that fits the way your team works', 'We build programs around your tools, your projects and your schedule, so new skills show up in day-to-day work.', 'How we run a corporate program', 'A clear four-step process, from the first conversation to follow-up support.', 'Programs built around your goals', 'Beyond individual courses, we design complete programs for teams and departments.', 'What our corporate clients say', 'Feedback from teams who have trained with Leafclutch.', 'Ready to Upskill Your Team?', 'Let''s build a training program around your organization''s goals.', 'Request Corporate Training'),
+      ('academic', 'Academic Training', 'Prepare Students for the Skills and Careers of Tomorrow', 'Help students bridge the gap between academic learning and industry expectations through practical, mentor-led technology training.', 'Partner With Us', 'Our Academic Partners', 'Academic Courses', 'Career-focused courses we run for colleges and schools, from web development to data and design.', 'Learning that connects the classroom to industry', 'We work alongside your faculty to give students practical skills, real projects and a clear view of technology careers.', 'How we work with your institution', 'A clear four-step process, planned around your academic calendar.', 'Programs for students and faculty', 'From single workshops to semester-long programs, we plan the format with your institution.', 'What our academic partners say', 'Feedback from institutions and faculty who have worked with Leafclutch.', 'Let''s Prepare Students for the Future', 'Partner with Leafclutch to bring industry-focused technology learning to your institution.', 'Partner With Us'),
       ('government', 'Government Training', 'Building Digital Skills for a Smarter Public Sector', 'Support digital transformation with practical technology training designed for government teams, institutions, and public-sector initiatives.', 'Request Government Training', 'Supporting Public Sector & Government Initiatives', 'Government Courses', 'Courses we adapt for public institutions, covering data, security, cloud and emerging technology.', 'Capacity building that lasts beyond the training room', 'We design training around institutional needs and public-sector realities, so teams keep applying what they learn.', 'How we run a public-sector program', 'A clear four-step process that fits institutional planning and reporting.', 'Programs for public institutions', 'We plan programs with your department, from awareness sessions to in-depth technical training.', 'What public-sector teams say', 'Feedback from government teams and programs we have trained.', 'Build Digital Capacity for the Future', 'Let''s design practical technology training around your institution''s needs.', 'Request Government Training')
     on conflict do nothing;
     insert into private.seed_log (name) values ('insert:training_pages:1');
@@ -1367,7 +1394,7 @@ do $seed$ begin
   end if;
 end $seed$;
 
--- Udemy courses included free with a course (content LeafClutch maintains).
+-- Udemy courses included free with a course (content Leafclutch maintains).
 do $seed$ begin
   if not exists (select 1 from private.seed_log where name = 'insert:course_udemy_bonus:1') then
     insert into public.course_udemy_bonus (id, course_id, title, description, image_url, instructor, rating, ratings_count, total_hours, lectures, level, course_url, display_order) values

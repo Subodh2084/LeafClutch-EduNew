@@ -11,7 +11,7 @@
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-geist-sans);
 
-  /* LeafClutch brand tokens */
+  /* Leafclutch brand tokens */
   --color-navy: var(--brand-navy);
   --color-navy-deep: var(--brand-navy-deep);
   --color-navy-soft: var(--brand-navy-soft);
@@ -89,7 +89,7 @@
 }
 
 :root {
-  /* LeafClutch palette */
+  /* Leafclutch palette */
   --brand-navy: #062165;
   --brand-navy-deep: #0b1d36;
   --brand-navy-soft: #33477a;

@@ -1,7 +1,7 @@
 // Single source of truth for site-wide settings.
 export const siteConfig = {
-  name: "LeafClutch Technologies",
-  shortName: "LeafClutch",
+  name: "Leafclutch Technologies",
+  shortName: "Leafclutch",
   description:
     "Practical, project-based technology courses in web development, AI, data science, design, cybersecurity and cloud — taught by working professionals in Nepal.",
   currency: {

@@ -16,7 +16,7 @@ const migrations = readdirSync(join(supabase, "migrations"))
 const section = (name, sql) =>
   `\n-- ===========================================================================\n-- ${name}\n-- ===========================================================================\n\n${sql.trim()}\n`;
 
-const header = `-- LeafClutch — complete Supabase setup (generated; do not edit by hand).
+const header = `-- Leafclutch — complete Supabase setup (generated; do not edit by hand).
 --
 -- Paste this whole file into the Supabase SQL editor and click Run. It is safe
 -- to run again at any time: it creates whatever is missing and brings existing
